@@ -27,7 +27,7 @@ public enum TranslationsLoaderFactory {
 
     public static TranslationsLoaderFactory fromString(String typeName) {
         if (!STRING_TYPE_NAME_TO_FACTORY_TYPE.containsKey(typeName)) {
-            throw new InvalidTranslationLoaderTypeException(typeName);
+            throw new InvalidTranslationsLoaderTypeException(typeName);
         }
         return STRING_TYPE_NAME_TO_FACTORY_TYPE.get(typeName);
     }

@@ -29,7 +29,7 @@ class TranslationsLoaderFactoryTest {
     @Test
     @DisplayName("Try to get loader factory for unknown type")
     void tryToGetLoaderFactoryForUnknownType() {
-        var exception = assertThrows(InvalidTranslationLoaderTypeException.class,
+        var exception = assertThrows(InvalidTranslationsLoaderTypeException.class,
                                      () -> TranslationsLoaderFactory.fromString("this value is invalid"));
         assertThat(exception.getMessage(), is(equalTo("Translation loader does not exist for given type: this value is invalid")));
     }
