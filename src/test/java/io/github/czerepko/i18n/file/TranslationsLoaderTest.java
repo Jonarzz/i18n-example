@@ -42,17 +42,32 @@ abstract class TranslationsLoaderTest {
     @Test
     @DisplayName("Get translations for directory with file with duplicated keys")
     void getTranslationsForDirectoryWithDuplicatedKeys() {
-        Map<String, String> translations = loader.loadTranslations("eng_with_duplicates");
-        assertThat(translations, allOf(entriesMatch(EXPECTED_CORRECT_ENG)));
+        var exception = assertThrows(DuplicatedTranslationKeyException.class,
+                                     () -> loader.loadTranslations("eng_with_duplicates"));
+        assertThat(exception.getMessage(), is(equalTo(
+                String.format("File 'eng_with_duplicates/i18n.%s' contains duplicated translation key: 'test.single.ball'", fileExtension)
+        )));
     }
 
     @Test
     @DisplayName("Try to get translations for not existing directory")
     void tryToGetTranslationsForNotExistingDirectory() {
-        var exception = assertThrows(MissingTranslationsDirectoryException.class,
+        var exception = assertThrows(MissingTranslationResourcesException.class,
                                      () -> loader.loadTranslations("missing"));
         assertThat(exception.getMessage(), is(equalTo(
-                "Missing translations directory. Please, make sure that subdirectory with name 'missing' exists in the 'i18n' resources directory"
+                "Missing translations resources."
+                + " Please, make sure that subdirectory with name 'missing' containing translation files exists in the 'i18n' resources directory"
+        )));
+    }
+
+    @Test
+    @DisplayName("Try to get translations for empty directory")
+    void tryToGetTranslationsForEmptyDirectory() {
+        var exception = assertThrows(MissingTranslationResourcesException.class,
+                                     () -> loader.loadTranslations("empty"));
+        assertThat(exception.getMessage(), is(equalTo(
+                "Missing translations resources."
+                + " Please, make sure that subdirectory with name 'empty' containing translation files exists in the 'i18n' resources directory"
         )));
     }
 
@@ -61,7 +76,7 @@ abstract class TranslationsLoaderTest {
     void tryToGetTranslationsForDirectoryWithInvalidFileFormat() {
         var exception = assertThrows(InvalidTranslationsFileFormatException.class,
                                      () -> loader.loadTranslations("invalid_file_format"));
-        assertThat(exception.getMessage(), is(equalTo(String.format("File i18n/invalid_file_format/i18n.%s has invalid format", fileExtension))));
+        assertThat(exception.getMessage(), is(equalTo(String.format("File invalid_file_format/i18n.%s has invalid format", fileExtension))));
     }
 
     private static Stream<Arguments> correctTranslationsMethodSource() {

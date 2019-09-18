@@ -25,9 +25,14 @@ public enum TranslationsLoaderFactory {
         return translationsLoader;
     }
 
-    public static TranslationsLoaderFactory fromString(String typeName) {
+    /**
+     * @param typeName translations loader type name for which the factory should be returned
+     * @return The factory appropriate for given type name
+     * @throws InvalidTranslationsLoaderTypeException when given type name is not valid; the exception message contains all available type names
+     */
+    public static TranslationsLoaderFactory fromString(String typeName) throws InvalidTranslationsLoaderTypeException {
         if (!STRING_TYPE_NAME_TO_FACTORY_TYPE.containsKey(typeName)) {
-            throw new InvalidTranslationsLoaderTypeException(typeName);
+            throw new InvalidTranslationsLoaderTypeException(typeName, STRING_TYPE_NAME_TO_FACTORY_TYPE.keySet());
         }
         return STRING_TYPE_NAME_TO_FACTORY_TYPE.get(typeName);
     }

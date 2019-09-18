@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
@@ -30,8 +32,16 @@ class TranslationsLoaderFactoryTest {
     @DisplayName("Try to get loader factory for unknown type")
     void tryToGetLoaderFactoryForUnknownType() {
         var exception = assertThrows(InvalidTranslationsLoaderTypeException.class,
-                                     () -> TranslationsLoaderFactory.fromString("this value is invalid"));
-        assertThat(exception.getMessage(), is(equalTo("Translation loader does not exist for given type: this value is invalid")));
+                                     () -> TranslationsLoaderFactory.fromString("invalid"));
+
+        String exceptionMessage = exception.getMessage();
+        assertThat(exceptionMessage, startsWith("Translation loader does not exist for given type 'invalid', available types are: "));
+
+        String[] availableTypes = exceptionMessage.split(": ")[1]
+                                                  .replace("[", "")
+                                                  .replace("]", "")
+                                                  .split(", ");
+        assertThat(availableTypes, is(arrayContainingInAnyOrder("json", "yaml", "yml", "property", "properties")));
     }
 
     @ParameterizedTest(name = "type = ''{0}''")
