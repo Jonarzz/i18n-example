@@ -1,0 +1,8 @@
+test:
+    single:
+        ball:  'piłka'
+        bird:  'ptak'
+        table: 'stół'
+    sentence:
+      long:  'To jest dosyć długie zdanie, które jest wykorzystywane w teście'
+      short: 'To jest krótkie zdanie'

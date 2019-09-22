@@ -24,7 +24,11 @@ class I18nResourcesFinder {
         } catch (IllegalArgumentException e) {
             throw new MissingTranslationResourcesException(languageCode);
         }
-        return new File(directoryUrl.getFile()).listFiles(filenameFilter);
+        File[] translationFiles = new File(directoryUrl.getFile()).listFiles(filenameFilter);
+        if (translationFiles == null || translationFiles.length == 0) {
+            throw new MissingTranslationResourcesException(languageCode);
+        }
+        return translationFiles;
     }
 
 }

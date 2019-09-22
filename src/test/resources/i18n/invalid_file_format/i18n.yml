@@ -1,0 +1,8 @@
+test:
+    single:
+        - ball:  'ball'
+        - bird:  'bird'
+        - table: 'table'
+    sentence:
+        long:  'This is a pretty long sentence, which is used in the test'
+        short: 'This is a short sentence'
