@@ -69,5 +69,4 @@ class TranslationsLoaderProviderTest {
         );
     }
 
-
 }

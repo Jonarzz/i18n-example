@@ -1,7 +1,7 @@
 package io.github.czerepko.i18n.file;
 
-import static io.github.czerepko.i18n.file.Translations.EXPECTED_CORRECT_ENG;
-import static io.github.czerepko.i18n.file.Translations.EXPECTED_CORRECT_POL;
+import static io.github.czerepko.i18n.test.Translations.EXPECTED_CORRECT_ENG;
+import static io.github.czerepko.i18n.test.Translations.EXPECTED_CORRECT_POL;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -23,8 +23,9 @@ import java.util.stream.Stream;
 
 abstract class TranslationsLoaderTest {
 
-    private I18nTranslationsLoader loader;
     private String fileExtension;
+
+    I18nTranslationsLoader loader;
 
     TranslationsLoaderTest(I18nTranslationsLoader loader, String fileExtension) {
         this.loader = loader;

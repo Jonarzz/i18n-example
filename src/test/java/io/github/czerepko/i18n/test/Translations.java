@@ -1,10 +1,10 @@
-package io.github.czerepko.i18n.file;
+package io.github.czerepko.i18n.test;
 
 import java.util.Map;
 
-class Translations {
+public class Translations {
 
-    static final Map<String, String> EXPECTED_CORRECT_ENG = Map.of(
+    public static final Map<String, String> EXPECTED_CORRECT_ENG = Map.of(
             "test.single.ball",    "ball",
             "test.single.bird",    "bird",
             "test.single.table",   "table",
@@ -12,7 +12,7 @@ class Translations {
             "test.sentence.short", "This is a short sentence"
     );
 
-    static final Map<String, String> EXPECTED_CORRECT_POL = Map.of(
+    public static final Map<String, String> EXPECTED_CORRECT_POL = Map.of(
             "test.single.ball",    "piłka",
             "test.single.bird",    "ptak",
             "test.single.table",   "stół",
