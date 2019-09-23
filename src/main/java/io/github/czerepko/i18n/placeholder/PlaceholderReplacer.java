@@ -12,6 +12,11 @@ public class PlaceholderReplacer {
         this.placeholderDecoratingStrategy = placeholderDecoratingStrategy;
     }
 
+    /**
+     * @param withPlaceholders String that contains parts with placeholders in format appropriate for this replacer
+     *                         (see: {@link io.github.czerepko.i18n.placeholder.PlaceholderReplacerFactory})
+     * @return A new String with all placeholders from the given String replaced with appropriate values based on the placeholder to value map.
+     */
     public String replace(String withPlaceholders) {
         String replaced = withPlaceholders;
         for (Map.Entry<String, String> placeholderToValue : placeholdersToValues.entrySet()) {

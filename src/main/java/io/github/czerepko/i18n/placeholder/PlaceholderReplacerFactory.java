@@ -24,6 +24,11 @@ public enum PlaceholderReplacerFactory {
         return new PlaceholderReplacer(placeholdersToValues, placeholderDecoratingStrategy);
     }
 
+    /**
+     * @param typeName placeholder replacer factory type name for which the factory should be returned
+     * @return The replacer factory appropriate for given type name
+     * @throws InvalidPlaceholderReplacerTypeException when given type name is not valid; the exception message contains all available type names
+     */
     public static PlaceholderReplacerFactory fromString(String typeName) throws InvalidPlaceholderReplacerTypeException {
         if (!STRING_TYPE_NAME_TO_FACTORY_TYPE.containsKey(typeName)) {
             throw new InvalidPlaceholderReplacerTypeException(typeName, STRING_TYPE_NAME_TO_FACTORY_TYPE.keySet());

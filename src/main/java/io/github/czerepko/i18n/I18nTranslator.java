@@ -14,6 +14,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Translator that allows to generate files with translations for multiple languages
+ * based on a single template file and multiple language dictionaries.
+ * <br/><br/>
+ * Required properties loaded from <b>application.properties</b> resource file are:<br/>
+ * <ul>
+ *     <li><b>i18n.language.codes</b> - target languages to which the template should be translated, <b>separated by a comma</b>;<br/>
+ *                                      have to reflect the 'i18n' resource translation subdirectories, e.g. for value: "eng,pol"
+ *                                      resource directories "i18n/eng" and "i18n/pol" have to be present with translation dictionaries
+ *                                      in appropriate format inside the directories</li>
+ *     <li><b>i18n.file.format</b> - format of the translation files, should be one of:
+ *         <ul>
+ *             <li>json - JavaScript-object-based format</li>
+ *             <li>yml - YAML format</li>
+ *             <li>properties - key-value pairs separated by an equality sign</li>
+ *         </ul>
+ *     </li>
+ *     <li><b>i18n.placeholder.type</b> - type of the placeholder used in the template files, should be one of:
+ *         <ul>
+ *             <li>tag - for {@code <Trans>place.holder.here</Trans>}</li>
+ *             <li>variable - for {@code ${place.holder.here}}</li>
+ *         </ul>
+ *     </li>
+ * </ul>
+ */
 @SuppressWarnings("UnstableApiUsage")
 public class I18nTranslator {
 
@@ -34,7 +59,22 @@ public class I18nTranslator {
         PLACEHOLDER_TYPE_PROPERTY = properties.getProperty("i18n.placeholder.type");
     }
 
+    /**
+     * Loads files (templates) from given paths and translates their contents with use of the translation dictionary resource files from the 'i18n'
+     * language code subdirectories.
+     * <br/><br/>
+     * Translated content is saved to a file with language code appended to the filename,
+     * e.g. if the input file is "some-file.txt" and the language codes are "eng" and "pol" (with their own translations
+     * in the resources subdirectories), the output files will be: "some-file-eng.txt" for the English translations and "some-file-pol.txt"
+     * for the Polish translations - all files are saved to directory of the source (template) file.
+     *
+     * @param filePaths paths to files that should undergo the translation process
+     * @throws IOException when any input-output problem with reading from, creating or writing to a file occurs
+     */
     public static void translateFiles(String... filePaths) throws IOException {
+        if (filePaths == null) {
+            return;
+        }
         for (String inputFilePath : filePaths) {
             String input = Files.asCharSource(new File(inputFilePath), Charsets.UTF_8).read();
             for (String languageCode : Splitter.on(",").trimResults().split(LANGUAGE_CODES_PROPERTY)) {
