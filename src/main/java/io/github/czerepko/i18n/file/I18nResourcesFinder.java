@@ -1,10 +1,13 @@
 package io.github.czerepko.i18n.file;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.io.Resources;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
+import java.util.Arrays;
 
 @SuppressWarnings("UnstableApiUsage")
 class I18nResourcesFinder {
@@ -17,7 +20,7 @@ class I18nResourcesFinder {
         filenameFilter = (directory, filename) -> filename.matches(".+\\." + extension + "$");
     }
 
-    File[] findI18nResources(String languageCode) {
+    Iterable<TranslationFileContext> findI18nResources(String languageCode) {
         URL directoryUrl;
         try {
             directoryUrl = Resources.getResource(I18N_PATH + languageCode);
@@ -28,7 +31,9 @@ class I18nResourcesFinder {
         if (translationFiles == null || translationFiles.length == 0) {
             throw new MissingTranslationResourcesException(languageCode);
         }
-        return translationFiles;
+        return Arrays.stream(translationFiles)
+                     .map(file -> new TranslationFileContext(languageCode, file))
+                     .collect(toList());
     }
 
 }

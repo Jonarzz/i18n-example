@@ -4,16 +4,14 @@ import static java.util.stream.Collectors.toMap;
 
 import com.eclipsesource.json.ParseException;
 import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.flattener.KeyTransformer;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 class JsonTranslationsLoader implements I18nTranslationsLoader {
-
-    private static final String KEY_TRANSFORMER_SEPARATOR = "'";
 
     private I18nResourcesFinder i18nResourcesFinder;
 
@@ -23,25 +21,24 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
 
     @Override
     public Map<String, String> loadTranslations(String languageCode) {
-        Map<String, String> translations = new TreeMap<>();
-        File[] findI18nResources = i18nResourcesFinder.findI18nResources(languageCode);
-        for (File translationFile : findI18nResources) {
-            String fileContent = FileUtils.getContent(translationFile);
+        Map<String, String> translations = new HashMap<>();
+        for (TranslationFileContext fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
+            String fileContent = fileContext.getContent();
             JsonFlattener jsonFlattener;
             try {
                 jsonFlattener = new JsonFlattener(fileContent);
             } catch (ParseException e) {
-                throw new InvalidTranslationsFileFormatException(languageCode, translationFile.getName());
+                throw new InvalidTranslationsFileFormatException(fileContext);
             }
             Map<String, String> translationsFromFile = jsonFlattener.flattenAsMap()
                                                                     .entrySet()
                                                                     .stream()
                                                                     .collect(toMap(Map.Entry::getKey,
                                                                                    entry -> entry.getValue().toString()));
-            validateDuplicatesInCurrentFile(languageCode, translationFile, jsonFlattener, translationsFromFile);
+            validateDuplicatesInCurrentFile(fileContext, jsonFlattener, translationsFromFile);
             for (String key : translationsFromFile.keySet()) {
                 if (translations.containsKey(key)) {
-                    throw new DuplicatedTranslationKeyException(languageCode, translationFile.getName(), key);
+                    throw new DuplicatedTranslationKeyException(fileContext, key);
                 }
                 translations.put(key, translationsFromFile.get(key));
             }
@@ -49,11 +46,10 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
         return translations;
     }
 
-    private void validateDuplicatesInCurrentFile(String languageCode, File translationFile, JsonFlattener jsonFlattener,
+    private void validateDuplicatesInCurrentFile(TranslationFileContext fileContext, JsonFlattener jsonFlattener,
                                                  Map<String, String> translationsFromFile) {
-        IntegerHolder index = new IntegerHolder();
-        Set<String> numberedKeys = jsonFlattener.withKeyTransformer(key -> KEY_TRANSFORMER_SEPARATOR + index.getAndIncrement()
-                                                                           + KEY_TRANSFORMER_SEPARATOR + key)
+        IncrementalKeyTransformer keyTransformer = new IncrementalKeyTransformer();
+        Set<String> numberedKeys = jsonFlattener.withKeyTransformer(keyTransformer)
                                                 .flattenAsMap()
                                                 .keySet();
         if (numberedKeys.size() == translationsFromFile.keySet().size()) {
@@ -61,22 +57,31 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
         }
         Set<String> alreadyOccurredKeys = new HashSet<>();
         for (String numberedKey : numberedKeys) {
-            String key = numberedKey.replaceAll(KEY_TRANSFORMER_SEPARATOR + "\\d+" + KEY_TRANSFORMER_SEPARATOR, "");
+            String key = keyTransformer.transformBack(numberedKey);
             if (translationsFromFile.containsKey(key)) {
                 if (alreadyOccurredKeys.contains(key)) {
-                    throw new DuplicatedTranslationKeyException(languageCode, translationFile.getName(), key);
+                    throw new DuplicatedTranslationKeyException(fileContext, key);
                 }
                 alreadyOccurredKeys.add(key);
             }
         }
     }
 
-    private static class IntegerHolder {
-        private int integer = 0;
+    private static class IncrementalKeyTransformer implements KeyTransformer {
 
-        private int getAndIncrement() {
-            return integer++;
+        private static final String KEY_TRANSFORMER_SEPARATOR = "'";
+
+        private int index = 0;
+
+        @Override
+        public String transform(String key) {
+            return KEY_TRANSFORMER_SEPARATOR + (index++) + KEY_TRANSFORMER_SEPARATOR + key;
         }
+
+        private String transformBack(String transformedKey) {
+            return transformedKey.replaceAll(KEY_TRANSFORMER_SEPARATOR + "\\d+" + KEY_TRANSFORMER_SEPARATOR, "");
+        }
+
     }
 
 }

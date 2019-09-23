@@ -45,7 +45,7 @@ abstract class TranslationsLoaderTest {
         var exception = assertThrows(DuplicatedTranslationKeyException.class,
                                      () -> loader.loadTranslations("eng_with_duplicates"));
         assertThat(exception.getMessage(), is(equalTo(
-                String.format("File 'eng_with_duplicates/i18n.%s' contains duplicated translation key: 'test.single.ball'", fileExtension)
+                String.format("File eng_with_duplicates/i18n.%s contains duplicated translation key: 'test.single.ball'", fileExtension)
         )));
     }
 

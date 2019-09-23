@@ -3,7 +3,6 @@ package io.github.czerepko.i18n.file;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
@@ -18,21 +17,21 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 @DisplayName("Translations loader creating tests")
-class TranslationsLoaderFactoryTest {
+class TranslationsLoaderProviderTest {
 
     @ParameterizedTest(name = "type name = ''{0}''")
-    @MethodSource("loaderFactorySource")
-    @DisplayName("Get loader factory for known type")
-    void getLoaderFactoryForKnownType(String loaderTypeName, TranslationsLoaderFactory factoryType) {
-        var factory = TranslationsLoaderFactory.fromString(loaderTypeName);
-        assertThat(factory, is(equalTo(factoryType)));
+    @MethodSource("loaderProviderSource")
+    @DisplayName("Get loader provider for known type")
+    void getLoaderProviderForKnownType(String loaderTypeName, TranslationsLoaderProvider providerType) {
+        var provider = TranslationsLoaderProvider.fromString(loaderTypeName);
+        assertThat(provider, is(equalTo(providerType)));
     }
 
     @Test
-    @DisplayName("Try to get loader factory for unknown type")
-    void tryToGetLoaderFactoryForUnknownType() {
+    @DisplayName("Try to get loader provider for unknown type")
+    void tryToGetLoaderProviderForUnknownType() {
         var exception = assertThrows(InvalidTranslationsLoaderTypeException.class,
-                                     () -> TranslationsLoaderFactory.fromString("invalid"));
+                                     () -> TranslationsLoaderProvider.fromString("invalid"));
 
         String exceptionMessage = exception.getMessage();
         assertThat(exceptionMessage, startsWith("Translation loader does not exist for given type 'invalid', available types are: "));
@@ -47,27 +46,26 @@ class TranslationsLoaderFactoryTest {
     @ParameterizedTest(name = "type = ''{0}''")
     @MethodSource("loaderSource")
     @DisplayName("Create loader")
-    void createLoader(TranslationsLoaderFactory factoryType, Class<I18nTranslationsLoader> loaderType) {
-        var loader = factoryType.create();
-        assertThat(loader, is(notNullValue()));
+    void createLoader(TranslationsLoaderProvider providerType, Class<I18nTranslationsLoader> loaderType) {
+        var loader = providerType.get();
         assertThat(loader, is(instanceOf(loaderType)));
     }
 
-    private static Stream<Arguments> loaderFactorySource() {
+    private static Stream<Arguments> loaderProviderSource() {
         return Stream.of(
-                Arguments.of("json",       TranslationsLoaderFactory.JSON),
-                Arguments.of("yaml",       TranslationsLoaderFactory.YAML),
-                Arguments.of("yml",        TranslationsLoaderFactory.YAML),
-                Arguments.of("properties", TranslationsLoaderFactory.PROPERTIES),
-                Arguments.of("property",   TranslationsLoaderFactory.PROPERTIES)
+                Arguments.of("json",       TranslationsLoaderProvider.JSON),
+                Arguments.of("yaml",       TranslationsLoaderProvider.YAML),
+                Arguments.of("yml",        TranslationsLoaderProvider.YAML),
+                Arguments.of("properties", TranslationsLoaderProvider.PROPERTIES),
+                Arguments.of("property",   TranslationsLoaderProvider.PROPERTIES)
         );
     }
 
     private static Stream<Arguments> loaderSource() {
         return Stream.of(
-                Arguments.of(TranslationsLoaderFactory.JSON,       JsonTranslationsLoader.class),
-                Arguments.of(TranslationsLoaderFactory.YAML,       YamlTranslationsLoader.class),
-                Arguments.of(TranslationsLoaderFactory.PROPERTIES, PropertiesTranslationsLoader.class)
+                Arguments.of(TranslationsLoaderProvider.JSON,       JsonTranslationsLoader.class),
+                Arguments.of(TranslationsLoaderProvider.YAML,       YamlTranslationsLoader.class),
+                Arguments.of(TranslationsLoaderProvider.PROPERTIES, PropertiesTranslationsLoader.class)
         );
     }
 
