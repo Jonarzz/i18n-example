@@ -29,6 +29,13 @@ class PlaceholderReplacerFactoryTest {
         assertThat(provider, is(equalTo(factory)));
     }
 
+    private static Stream<Arguments> factorySource() {
+        return Stream.of(
+                Arguments.of("tag",      PlaceholderReplacerFactory.TAG),
+                Arguments.of("variable", PlaceholderReplacerFactory.VARIABLE)
+        );
+    }
+
     @Test
     @DisplayName("Try to get replacer factory for unknown type")
     void tryToGetLoaderProviderForUnknownType() {
@@ -51,13 +58,6 @@ class PlaceholderReplacerFactoryTest {
     void createLoader(PlaceholderReplacerFactory providerType) {
         var replacer = providerType.create(Map.of());
         assertThat(replacer, is(notNullValue()));
-    }
-
-    private static Stream<Arguments> factorySource() {
-        return Stream.of(
-                Arguments.of("tag",      PlaceholderReplacerFactory.TAG),
-                Arguments.of("variable", PlaceholderReplacerFactory.VARIABLE)
-        );
     }
 
 }

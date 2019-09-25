@@ -27,6 +27,16 @@ class TranslationsLoaderProviderTest {
         assertThat(provider, is(equalTo(providerType)));
     }
 
+    private static Stream<Arguments> loaderProviderSource() {
+        return Stream.of(
+                Arguments.of("json",       TranslationsLoaderProvider.JSON),
+                Arguments.of("yaml",       TranslationsLoaderProvider.YAML),
+                Arguments.of("yml",        TranslationsLoaderProvider.YAML),
+                Arguments.of("properties", TranslationsLoaderProvider.PROPERTIES),
+                Arguments.of("property",   TranslationsLoaderProvider.PROPERTIES)
+        );
+    }
+
     @Test
     @DisplayName("Try to get loader provider for unknown type")
     void tryToGetLoaderProviderForUnknownType() {
@@ -49,16 +59,6 @@ class TranslationsLoaderProviderTest {
     void createLoader(TranslationsLoaderProvider providerType, Class<I18nTranslationsLoader> loaderType) {
         var loader = providerType.get();
         assertThat(loader, is(instanceOf(loaderType)));
-    }
-
-    private static Stream<Arguments> loaderProviderSource() {
-        return Stream.of(
-                Arguments.of("json",       TranslationsLoaderProvider.JSON),
-                Arguments.of("yaml",       TranslationsLoaderProvider.YAML),
-                Arguments.of("yml",        TranslationsLoaderProvider.YAML),
-                Arguments.of("properties", TranslationsLoaderProvider.PROPERTIES),
-                Arguments.of("property",   TranslationsLoaderProvider.PROPERTIES)
-        );
     }
 
     private static Stream<Arguments> loaderSource() {

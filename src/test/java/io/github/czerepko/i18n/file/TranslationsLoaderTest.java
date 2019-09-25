@@ -40,6 +40,13 @@ abstract class TranslationsLoaderTest {
         assertThat(translations, allOf(entriesMatch(expectedTranslations)));
     }
 
+    private static Stream<Arguments> correctTranslationsMethodSource() {
+        return Stream.of(
+                Arguments.of("eng", EXPECTED_CORRECT_ENG),
+                Arguments.of("pol", EXPECTED_CORRECT_POL)
+        );
+    }
+
     @Test
     @DisplayName("Get translations for directory with file with duplicated keys")
     void getTranslationsForDirectoryWithDuplicatedKeys() {
@@ -78,13 +85,6 @@ abstract class TranslationsLoaderTest {
         var exception = assertThrows(InvalidTranslationsFileFormatException.class,
                                      () -> loader.loadTranslations("invalid_file_format"));
         assertThat(exception.getMessage(), is(equalTo(String.format("File invalid_file_format/i18n.%s has invalid format", fileExtension))));
-    }
-
-    private static Stream<Arguments> correctTranslationsMethodSource() {
-        return Stream.of(
-                Arguments.of("eng", EXPECTED_CORRECT_ENG),
-                Arguments.of("pol", EXPECTED_CORRECT_POL)
-        );
     }
 
     private List<Matcher<? super Map<String, String>>> entriesMatch(Map<String, String> expected) {

@@ -1,15 +1,15 @@
 package io.github.czerepko.i18n;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import io.github.czerepko.i18n.file.TranslationsLoaderProvider;
 import io.github.czerepko.i18n.placeholder.PlaceholderReplacerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -76,14 +76,14 @@ public class I18nTranslator {
             return;
         }
         for (String inputFilePath : filePaths) {
-            String input = Files.asCharSource(new File(inputFilePath), Charsets.UTF_8).read();
+            String input = Files.readString(Path.of(inputFilePath));
             for (String languageCode : Splitter.on(",").trimResults().split(LANGUAGE_CODES_PROPERTY)) {
                 String output = translate(input, languageCode);
                 File outputFile = getOutputFile(languageCode, inputFilePath);
                 if (!outputFile.exists()) {
                     outputFile.createNewFile();
                 }
-                Files.asCharSink(outputFile, Charsets.UTF_8).write(output);
+                Files.writeString(outputFile.toPath(), output);
             }
         }
     }

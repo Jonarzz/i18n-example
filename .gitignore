@@ -70,3 +70,4 @@ fabric.properties
 *.class
 target/
 /.idea/$PRODUCT_WORKSPACE_FILE$
+example-page-*.html
