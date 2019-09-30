@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Note - not a proper YAML format parser - used only as an example!
+ */
 class YamlTranslationsLoader implements I18nTranslationsLoader {
 
     private static final String BEGINNING_WITH_LETTER_REGEX = "^[a-zA-Z].*";

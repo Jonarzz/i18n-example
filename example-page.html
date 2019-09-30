@@ -1,8 +1,30 @@
+<head>
+    <meta charset="UTF-8">
+    <title>${page.title}</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        header {
+            margin-top: 25px;
+            margin-bottom: 100px;
+        }
+        footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
 <body>
-    <h1>${welcome.header}</h1>
-    <p>${welcome.text}</p>
-    <br/>
-    <p>${main.page.about}</p>
-    <br/>
-    <p>${main.page.contact}</p>
+    <header>
+        <h1>${welcome.header}</h1>
+        <p>${welcome.text}</p>
+    </header>
+    <article>
+        <p>${main.page.about}</p>
+        <p>${main.page.social}</p>
+    </article>
+    <footer>${footer.contact}</footer>
 </body>
