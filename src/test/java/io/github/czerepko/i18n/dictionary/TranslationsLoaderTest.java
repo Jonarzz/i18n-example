@@ -1,4 +1,4 @@
-package io.github.czerepko.i18n.file;
+package io.github.czerepko.i18n.dictionary;
 
 import static io.github.czerepko.i18n.test.Translations.EXPECTED_CORRECT_ENG;
 import static io.github.czerepko.i18n.test.Translations.EXPECTED_CORRECT_POL;

@@ -1,13 +1,15 @@
 package io.github.czerepko.i18n.placeholder;
 
-import java.util.Set;
+import io.github.czerepko.i18n.common.InvalidEnumTypeException;
 
-class InvalidPlaceholderReplacerTypeException extends RuntimeException {
+import java.util.Collection;
 
-    private static final String ERROR_MESSAGE_TEMPLATE = "Placeholder replacer does not exist for given type '%s', available types are: %s";
+class InvalidPlaceholderReplacerTypeException extends InvalidEnumTypeException {
 
-    InvalidPlaceholderReplacerTypeException(String typeName, Set<String> availableTypes) {
-        super(String.format(ERROR_MESSAGE_TEMPLATE, typeName, availableTypes));
+    private static final String REPLACER_DESCRIPTION = "placeholder replacer";
+
+    InvalidPlaceholderReplacerTypeException(String typeName, Collection<String> availableTypes) {
+        super(REPLACER_DESCRIPTION, typeName, availableTypes);
     }
 
 }

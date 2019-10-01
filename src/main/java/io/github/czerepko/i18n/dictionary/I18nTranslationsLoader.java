@@ -1,4 +1,4 @@
-package io.github.czerepko.i18n.file;
+package io.github.czerepko.i18n.dictionary;
 
 import java.util.Map;
 

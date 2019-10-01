@@ -1,4 +1,4 @@
-package io.github.czerepko.i18n.file;
+package io.github.czerepko.i18n.dictionary;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;

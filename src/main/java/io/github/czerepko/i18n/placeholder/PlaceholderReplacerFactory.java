@@ -7,12 +7,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 public enum PlaceholderReplacerFactory {
-    TAG     (placeholder -> "<Trans>" + placeholder + "</Trans>"),
+    TAG(placeholder -> "<Trans>" + placeholder + "</Trans>"),
     VARIABLE(placeholder -> "${" + placeholder + "}");
 
-    private static final Map<String, PlaceholderReplacerFactory> STRING_TYPE_NAME_TO_FACTORY_TYPE =
-            Arrays.stream(values()).collect(toMap(value -> value.toString().toLowerCase(),
-                                                  identity()));
+    private static final Map<String, PlaceholderReplacerFactory> TYPE_NAME_TO_FACTORY = Arrays.stream(values())
+                                                                                              .collect(toMap(value -> value.toString().toLowerCase(),
+                                                                                                             identity()));
 
     private PlaceholderDecoratingStrategy placeholderDecoratingStrategy;
 
@@ -30,10 +30,10 @@ public enum PlaceholderReplacerFactory {
      * @throws InvalidPlaceholderReplacerTypeException when given type name is not valid; the exception message contains all available type names
      */
     public static PlaceholderReplacerFactory fromString(String typeName) throws InvalidPlaceholderReplacerTypeException {
-        if (!STRING_TYPE_NAME_TO_FACTORY_TYPE.containsKey(typeName)) {
-            throw new InvalidPlaceholderReplacerTypeException(typeName, STRING_TYPE_NAME_TO_FACTORY_TYPE.keySet());
+        if (!TYPE_NAME_TO_FACTORY.containsKey(typeName)) {
+            throw new InvalidPlaceholderReplacerTypeException(typeName, TYPE_NAME_TO_FACTORY.keySet());
         }
-        return STRING_TYPE_NAME_TO_FACTORY_TYPE.get(typeName);
+        return TYPE_NAME_TO_FACTORY.get(typeName);
     }
 
 }
