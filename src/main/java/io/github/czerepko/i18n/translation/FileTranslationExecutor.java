@@ -54,10 +54,11 @@ public enum FileTranslationExecutor {
     }
 
     public static FileTranslationExecutor fromString(String type) {
-        if (!TYPE_TO_EXECUTOR.containsKey(type)) {
+        String lowerCaseType = type.toLowerCase();
+        if (!TYPE_TO_EXECUTOR.containsKey(lowerCaseType)) {
             throw new InvalidFileTranslationExecutorException(type, TYPE_TO_EXECUTOR.keySet());
         }
-        return TYPE_TO_EXECUTOR.get(type);
+        return TYPE_TO_EXECUTOR.get(lowerCaseType);
     }
 
     /**
@@ -72,8 +73,8 @@ public enum FileTranslationExecutor {
      * @param filePaths paths to files that should undergo the translation process
      */
     public void createTranslatedFiles(String... filePaths) {
-        if (filePaths == null) {
-            return;
+        if (filePaths == null || filePaths.length == 0) {
+            throw new IllegalArgumentException("File paths cannot be null or empty");
         }
         for (File templateFile : templateFileResolver.resolve(filePaths)) {
             for (String languageCode : LANGUAGE_CODES) {
