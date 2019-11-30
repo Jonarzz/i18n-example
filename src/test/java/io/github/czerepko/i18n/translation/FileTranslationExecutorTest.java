@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -59,7 +61,7 @@ class FileTranslationExecutorTest {
     @MethodSource("createImplicitlyTranslatedFilesProvider")
     @DisplayName("Create translated files for implicitly given input file paths")
     void createImplicitlyTranslatedFiles(String propertiesFileFormat, String placeholderType, List<String> inputFileNames,
-                                         Map<String, String> expectedFileNamesToContents) throws IOException {
+                                         Map<String, String> expectedFileNamesToContents) throws IOException, URISyntaxException {
         preparePropertiesFile(propertiesFileFormat, placeholderType);
         FileTranslationExecutor.reloadProperties();
 
@@ -117,8 +119,8 @@ class FileTranslationExecutorTest {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static void preparePropertiesFile(String fileFormat, String placeholderType) throws IOException {
-        String filePath = Resources.getResource("application.properties").getPath().substring(1);
+    private static void preparePropertiesFile(String fileFormat, String placeholderType) throws IOException, URISyntaxException {
+        URI filePath = Resources.getResource("application.properties").toURI();
         List<String> propertiesFileContent = getPropertiesFileContent(fileFormat, placeholderType);
         Files.write(Paths.get(filePath), propertiesFileContent);
     }
