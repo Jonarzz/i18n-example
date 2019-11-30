@@ -12,24 +12,28 @@ enum TranslationProperties {
     PLACEHOLDER_TYPE("i18n.placeholder.type");
 
     private static final String PROPERTIES_FILENAME = "application.properties";
+    private static final Properties PROPERTIES = new Properties();
 
-    private Properties properties = new Properties();
-    private String value;
+    private String placeholder;
 
-    {
+    static {
+        reload();
+    }
+
+    TranslationProperties(String placeholder) {
+        this.placeholder = placeholder;
+    }
+
+    static void reload() {
         try {
-            properties.load(Resources.getResource(PROPERTIES_FILENAME).openStream());
+            PROPERTIES.load(Resources.getResource(PROPERTIES_FILENAME).openStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    TranslationProperties(String placeholder) {
-        value = properties.getProperty(placeholder);
-    }
-
     String getValue() {
-        return value;
+        return PROPERTIES.getProperty(placeholder);
     }
 
 }

@@ -1,12 +1,13 @@
 package io.github.czerepko.i18n.translation;
 
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import com.google.common.base.Splitter;
 
-import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,16 +42,14 @@ public enum FileTranslationExecutor {
     private static final Map<String, FileTranslationExecutor> TYPE_TO_EXECUTOR = Arrays.stream(values())
                                                                                        .collect(toMap(value -> value.toString().toLowerCase(),
                                                                                                       identity()));
-    private static final Iterable<String> LANGUAGE_CODES = Splitter.on(",")
-                                                                   .trimResults()
-                                                                   .split(TranslationProperties.LANGUAGE_CODES.getValue());
+    private static final List<String> LANGUAGE_CODES = Splitter.on(",")
+                                                               .trimResults()
+                                                               .splitToList(TranslationProperties.LANGUAGE_CODES.getValue());
 
     private TemplateFileResolver templateFileResolver;
-    private FileTranslator fileTranslator;
 
     FileTranslationExecutor(TemplateFileResolver templateFileResolver) {
         this.templateFileResolver = templateFileResolver;
-        fileTranslator = new FileTranslator();
     }
 
     public static FileTranslationExecutor fromString(String type) {
@@ -61,6 +60,10 @@ public enum FileTranslationExecutor {
         return TYPE_TO_EXECUTOR.get(lowerCaseType);
     }
 
+    public static void reloadProperties() {
+        TranslationProperties.reload();
+    }
+
     /**
      * Loads files (templates) from given paths and translates their contents with use of the translation dictionary resource files from the 'i18n'
      * language code subdirectories.
@@ -69,18 +72,21 @@ public enum FileTranslationExecutor {
      * e.g. if the input file is "some-file.txt" and the language codes are "eng" and "pol" (with their own translations
      * in the resources subdirectories), the output files will be: "some-file-eng.txt" for the English translations and "some-file-pol.txt"
      * for the Polish translations - all files are saved to directory of the source (template) file.
+     * Returns list of translated file paths.
      *
      * @param filePaths paths to files that should undergo the translation process
+     * @return List of translated file paths.
      */
-    public void createTranslatedFiles(String... filePaths) {
+    public List<String> createTranslatedFiles(String... filePaths) {
         if (filePaths == null || filePaths.length == 0) {
             throw new IllegalArgumentException("File paths cannot be null or empty");
         }
-        for (File templateFile : templateFileResolver.resolve(filePaths)) {
-            for (String languageCode : LANGUAGE_CODES) {
-                fileTranslator.translate(templateFile, languageCode);
-            }
-        }
+        return templateFileResolver.resolve(filePaths)
+                                   .stream()
+                                   .flatMap(templateFile -> LANGUAGE_CODES
+                                           .stream()
+                                           .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
+                                   .collect(toList());
     }
 
 }

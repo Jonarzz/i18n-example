@@ -20,7 +20,7 @@ class FileTranslator {
         placeholderReplacerFactory = PlaceholderReplacerFactory.fromString(TranslationProperties.PLACEHOLDER_TYPE.getValue());
     }
 
-    void translate(File file, String languageCode) {
+    String translate(File file, String languageCode) {
         String input = FileHandler.READ.execute(file);
         var translations = i18nTranslationsLoader.loadTranslations(languageCode);
         String output = placeholderReplacerFactory.create(translations)
@@ -28,6 +28,7 @@ class FileTranslator {
         File outputFile = getOutputFile(languageCode, file.getPath());
         FileHandler.CREATE.execute(outputFile);
         FileHandler.WRITE.execute(outputFile, output);
+        return outputFile.getPath();
     }
 
     private File getOutputFile(String languageCode, String filePath) {
