@@ -3,22 +3,19 @@ package io.github.czerepko.i18n.dictionary;
 import static java.lang.System.lineSeparator;
 
 import com.google.common.base.Joiner;
+import io.github.czerepko.i18n.file.FileHandler;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 class TranslationFileContext {
 
-    private String languageCode;
     private File translationFile;
 
     private List<String> lines;
     private String content;
 
-    TranslationFileContext(String languageCode, File translationFile) {
-        this.languageCode = languageCode;
+    TranslationFileContext(File translationFile) {
         this.translationFile = translationFile;
     }
 
@@ -26,11 +23,7 @@ class TranslationFileContext {
         if (lines != null) {
             return lines;
         }
-        try {
-            return lines = Files.readAllLines(translationFile.toPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return lines = FileHandler.READ_LINES.execute(translationFile);
     }
 
     String getContent() {
@@ -41,7 +34,7 @@ class TranslationFileContext {
     }
 
     String getPath() {
-        return languageCode + "/" + translationFile.getName();
+        return translationFile.getPath();
     }
 
 }

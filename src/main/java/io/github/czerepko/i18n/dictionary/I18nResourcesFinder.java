@@ -32,7 +32,7 @@ class I18nResourcesFinder {
             throw new MissingTranslationResourcesException(languageCode);
         }
         return Arrays.stream(translationFiles)
-                     .map(file -> new TranslationFileContext(languageCode, file))
+                     .map(TranslationFileContext::new)
                      .collect(toList());
     }
 

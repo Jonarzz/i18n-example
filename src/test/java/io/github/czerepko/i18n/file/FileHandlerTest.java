@@ -46,7 +46,7 @@ class FileHandlerTest {
         private Stream<Arguments> executeWithoutInputParamsProvider() {
             return Stream.of(
                     Arguments.of(FileHandler.READ,   "READ",   "file content"),
-                    Arguments.of(FileHandler.CREATE, "CREATE", true),
+                    Arguments.of(FileHandler.CREATE, "CREATE", null),
                     Arguments.of(FileHandler.WRITE,  "WRITE",  null)
             );
         }
@@ -62,27 +62,29 @@ class FileHandlerTest {
             verification.accept(operationName, input);
         }
 
+        private Stream<Arguments> executeWithInputParamsProvider() {
+            BiConsumer noContentVerification = (filename, input) -> {};
+            BiConsumer<String, String> contentVerification = (filename, input) -> {
+                File file = getResourceFile(filename);
+                String actual;
+                try {
+                    actual = Files.asCharSource(file, UTF_8).readFirstLine();
+                } catch (IOException e) {
+                    throw new AssertionError(e);
+                }
+                assertEquals(input, actual);
+            };
+            return Stream.of(
+                    Arguments.of(FileHandler.READ,   "READ",   null,          noContentVerification),
+                    Arguments.of(FileHandler.CREATE, "CREATE", "create test", contentVerification),
+                    Arguments.of(FileHandler.WRITE,  "WRITE",  "write test",  contentVerification)
+            );
+        }
+
         private File getResourceFile(String filename) {
             return Optional.ofNullable(fileDirResourceUrl)
                            .map(url -> new File(url.getFile() + File.separator + filename))
                            .orElseThrow(AssertionError::new);
-        }
-
-        private Stream<Arguments> executeWithInputParamsProvider() {
-            return Stream.of(
-                    Arguments.of(FileHandler.READ,   "READ",    null,  (BiConsumer) (filename, input) -> {}),
-                    Arguments.of(FileHandler.CREATE, "CREATE",  null,  (BiConsumer) (filename, input) -> {}),
-                    Arguments.of(FileHandler.WRITE,  "WRITE",  "test", (BiConsumer<String, String>) (filename, input) -> {
-                        File file = getResourceFile(filename);
-                        String actual;
-                        try {
-                            actual = Files.asCharSource(file, UTF_8).readFirstLine();
-                        } catch (IOException e) {
-                            throw new AssertionError(e);
-                        }
-                        assertEquals(input, actual);
-                    })
-            );
         }
 
     }
@@ -110,7 +112,7 @@ class FileHandlerTest {
         private Stream<Arguments> executeWithoutInputHandlerProvider() {
             return Stream.of(
                     Arguments.of(FileHandler.CREATE, "CREATE"),
-                    Arguments.of(FileHandler.READ,   "READ")
+                    Arguments.of(FileHandler.READ, "READ")
             );
         }
 

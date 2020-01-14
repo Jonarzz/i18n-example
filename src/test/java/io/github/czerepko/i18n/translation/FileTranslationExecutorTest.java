@@ -75,16 +75,17 @@ class FileTranslationExecutorTest {
         assertEquals(expectedFileNamesToContents.size(), translatedFilePaths.size(),
                      "Number of translated file paths and expected number of file paths has to be equal");
 
-        Map<String, String> actualFileNamesToContents = translatedFilePaths.stream()
-                                                                           .collect(toMap(path -> Iterables.getLast(Splitter.on(File.separator)
-                                                                                                                            .split(path)),
-                                                                                          path -> {
-                                                                                              try {
-                                                                                                  return Files.readString(Paths.get(path));
-                                                                                              } catch (IOException e) {
-                                                                                                  throw new AssertionError(e);
-                                                                                              }
-                                                                                          }));
+        Map<String, String> actualFileNamesToContents =
+                translatedFilePaths.stream()
+                                   .collect(toMap(path -> Iterables.getLast(Splitter.on(File.separator)
+                                                                                    .split(path)),
+                                                  path -> {
+                                                      try {
+                                                          return Files.readString(Paths.get(path));
+                                                      } catch (IOException e) {
+                                                          throw new AssertionError(e);
+                                                      }
+                                                  }));
         for (String fileName : expectedFileNamesToContents.keySet()) {
             String expectedContent = expectedFileNamesToContents.get(fileName);
             String actualContent = actualFileNamesToContents.get(fileName);

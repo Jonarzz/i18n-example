@@ -5,44 +5,51 @@ import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class FileHandler<I, O> {
 
-    public static final FileHandler<Void, String> READ = new FileHandler<>(FileOperation.READ,
-            file -> Files.asCharSource(file, Charsets.UTF_8).read());
-    public static final FileHandler<Void, Boolean> CREATE = new FileHandler<>(FileOperation.CREATE,
-            file -> file.exists() || file.createNewFile());
-    public static final FileHandler<String, Void> WRITE = new FileHandler<>(FileOperation.WRITE,
-            (file, payloadToSave) -> Files.asCharSink(file, Charsets.UTF_8)
-                                          .write(Optional.ofNullable(payloadToSave)
-                                                         .orElse("")));
-
-    @FunctionalInterface
-    private interface FileHandlingFunction<O> {
-        O apply(File file) throws IOException;
-    }
-
-    @FunctionalInterface
-    private interface FileHandlingConsumerWithInput<I> {
-        void apply(File file, I input) throws IOException;
-    }
+    public static final FileHandler<Void, String> READ = new FileHandler<>(
+            FileOperation.READ,
+            file -> Files.asCharSource(file, Charsets.UTF_8)
+                         .read()
+    );
+    @SuppressWarnings("UnstableApiUsage")
+    public static final FileHandler<Void, List<String>> READ_LINES = new FileHandler<>(
+            FileOperation.READ,
+            file -> Files.readLines(file, Charsets.UTF_8)
+    );
+    public static final FileHandler<String, Void> WRITE = new FileHandler<>(
+            FileOperation.WRITE,
+            (file, content) -> Files.asCharSink(file, Charsets.UTF_8)
+                                    .write(Optional.ofNullable(content)
+                                                   .orElse(""))
+    );
+    public static final FileHandler<String, Void> CREATE = new FileHandler<>(
+            FileOperation.CREATE,
+            (file, content) -> {
+                if (file.exists() || file.createNewFile()) {
+                    WRITE.execute(file, content);
+                }
+            }
+    );
 
     private FileOperation operationType;
     private FileHandlingFunction<O> guardedFunction;
-    private FileHandlingConsumerWithInput<I> guardedBiConsumer;
+    private FileHandlingConsumerWithInput<I> guardedBiFunction;
 
     private FileHandler(FileOperation operationType, FileHandler.FileHandlingFunction<O> guardedFunction) {
         this.operationType = operationType;
         this.guardedFunction = guardedFunction;
-        guardedBiConsumer = (file, alsoIgnored) -> guardedFunction.apply(file);
+        guardedBiFunction = (file, ignored) -> guardedFunction.apply(file);
     }
 
     private FileHandler(FileOperation operationType, FileHandler.FileHandlingConsumerWithInput<I> guardedBiFunction) {
         this.operationType = operationType;
-        this.guardedBiConsumer = guardedBiFunction;
+        this.guardedBiFunction = guardedBiFunction;
         guardedFunction = file -> {
-            guardedBiConsumer.apply(file, null);
+            this.guardedBiFunction.apply(file, null);
             return null;
         };
     }
@@ -57,10 +64,22 @@ public class FileHandler<I, O> {
 
     public void execute(File file, I input) {
         try {
-            guardedBiConsumer.apply(file, input);
+            guardedBiFunction.apply(file, input);
         } catch (IOException ioException) {
             throw new FileHandlingException(ioException, operationType);
         }
+    }
+
+    @FunctionalInterface
+    private interface FileHandlingFunction<O> {
+
+        O apply(File file) throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface FileHandlingConsumerWithInput<I> {
+
+        void apply(File file, I input) throws IOException;
     }
 
 }

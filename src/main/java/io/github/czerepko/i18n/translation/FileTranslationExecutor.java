@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toMap;
 
 import com.google.common.base.Splitter;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,7 @@ public enum FileTranslationExecutor {
                                    .flatMap(templateFile -> LANGUAGE_CODES
                                            .stream()
                                            .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
+                                   .map(File::getPath)
                                    .collect(toList());
     }
 

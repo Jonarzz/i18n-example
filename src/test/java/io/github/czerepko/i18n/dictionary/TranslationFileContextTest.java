@@ -25,7 +25,7 @@ class TranslationFileContextTest {
     @Test
     @DisplayName("Get lines from file")
     void getLines() {
-        TranslationFileContext fileContext = new TranslationFileContext(LANGUAGE_CODE, FILE);
+        TranslationFileContext fileContext = new TranslationFileContext(FILE);
 
         List<String> lines = fileContext.getLines();
 
@@ -39,7 +39,7 @@ class TranslationFileContextTest {
     @Test
     @DisplayName("Get content from file")
     void getContent() {
-        TranslationFileContext fileContext = new TranslationFileContext(LANGUAGE_CODE, FILE);
+        TranslationFileContext fileContext = new TranslationFileContext(FILE);
 
         String content = fileContext.getContent();
 
@@ -53,10 +53,10 @@ class TranslationFileContextTest {
     @Test
     @DisplayName("Get path of the file")
     void getPath() {
-        TranslationFileContext fileContext = new TranslationFileContext(LANGUAGE_CODE, FILE);
+        TranslationFileContext fileContext = new TranslationFileContext(FILE);
 
         String path = fileContext.getPath();
-        assertThat(path, is(equalTo(LANGUAGE_CODE + "/" + FILE_NAME)));
+        assertThat(path, is(equalTo(FILE.getPath())));
     }
 
 }

@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.hamcrest.Matcher;
@@ -52,8 +53,10 @@ abstract class TranslationsLoaderTest {
     void getTranslationsForDirectoryWithDuplicatedKeys() {
         var exception = assertThrows(DuplicatedTranslationKeyException.class,
                                      () -> loader.loadTranslations("eng_with_duplicates"));
-        assertThat(exception.getMessage(), is(equalTo(
-                String.format("File eng_with_duplicates/i18n.%s contains duplicated translation key: 'test.single.ball'", fileExtension)
+        assertThat(exception.getMessage(), stringContainsInOrder(List.of(
+                "File ",
+                "eng_with_duplicates",
+                String.format("i18n.%s contains duplicated translation key: 'test.single.ball'", fileExtension)
         )));
     }
 
@@ -63,8 +66,10 @@ abstract class TranslationsLoaderTest {
         var exception = assertThrows(MissingTranslationResourcesException.class,
                                      () -> loader.loadTranslations("missing"));
         assertThat(exception.getMessage(), is(equalTo(
-                "Missing translations resources."
-                + " Please, make sure that subdirectory with name 'missing' containing translation files exists in the 'i18n' resources directory"
+                "Missing translations resources. "
+                + "Please, make sure that subdirectory with name 'missing' containing translation files exists "
+                + "in the 'i18n' resources directory. "
+                + "The files should have extensions appropriate for file format defined in the properties file."
         )));
     }
 
@@ -75,7 +80,9 @@ abstract class TranslationsLoaderTest {
                                      () -> loader.loadTranslations("empty"));
         assertThat(exception.getMessage(), is(equalTo(
                 "Missing translations resources."
-                + " Please, make sure that subdirectory with name 'empty' containing translation files exists in the 'i18n' resources directory"
+                + " Please, make sure that subdirectory with name 'empty' containing translation files exists "
+                + "in the 'i18n' resources directory. "
+                + "The files should have extensions appropriate for file format defined in the properties file."
         )));
     }
 
@@ -84,7 +91,11 @@ abstract class TranslationsLoaderTest {
     void tryToGetTranslationsForDirectoryWithInvalidFileFormat() {
         var exception = assertThrows(InvalidTranslationsFileFormatException.class,
                                      () -> loader.loadTranslations("invalid_file_format"));
-        assertThat(exception.getMessage(), is(equalTo(String.format("File invalid_file_format/i18n.%s has invalid format", fileExtension))));
+        assertThat(exception.getMessage(), stringContainsInOrder(List.of(
+                "File ",
+                "invalid_file_format",
+                String.format("i18n.%s has invalid format", fileExtension)
+        )));
     }
 
     private List<Matcher<? super Map<String, String>>> entriesMatch(Map<String, String> expected) {
