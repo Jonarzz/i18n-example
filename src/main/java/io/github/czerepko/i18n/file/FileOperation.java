@@ -1,6 +1,7 @@
 package io.github.czerepko.i18n.file;
 
 enum FileOperation {
+
     READ,
     WRITE,
     CREATE;

@@ -5,6 +5,8 @@ import java.util.Map;
 public interface I18nTranslationsLoader {
 
     /**
+     * Creates translations map of placeholder - translation pairs for given language code.
+     *
      * @param languageCode Language code as string - represents the translations source subdirectory in i18n resources directory
      * @return Map of translations as {placeholder : translation in given language} pairs.
      * @throws InvalidTranslationsFileFormatException when any file with extension appropriate for the loader in the language code subdirectory

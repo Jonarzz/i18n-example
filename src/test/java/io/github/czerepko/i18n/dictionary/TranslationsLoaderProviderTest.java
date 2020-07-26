@@ -27,7 +27,7 @@ class TranslationsLoaderProviderTest {
         assertThat(provider, is(equalTo(providerType)));
     }
 
-    private static Stream<Arguments> loaderProviderSource() {
+    static Stream<Arguments> loaderProviderSource() {
         return Stream.of(
                 Arguments.of("json",       TranslationsLoaderProvider.JSON),
                 Arguments.of("yaml",       TranslationsLoaderProvider.YAML),
@@ -61,7 +61,7 @@ class TranslationsLoaderProviderTest {
         assertThat(loader, is(instanceOf(loaderType)));
     }
 
-    private static Stream<Arguments> loaderSource() {
+    static Stream<Arguments> loaderSource() {
         return Stream.of(
                 Arguments.of(TranslationsLoaderProvider.JSON,       JsonTranslationsLoader.class),
                 Arguments.of(TranslationsLoaderProvider.YAML,       YamlTranslationsLoader.class),

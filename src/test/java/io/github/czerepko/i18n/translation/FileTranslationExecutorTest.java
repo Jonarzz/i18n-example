@@ -39,7 +39,7 @@ class FileTranslationExecutorTest {
         assertEquals(expectedExecutor, executor);
     }
 
-    private static Stream<Arguments> createFromStringProvider() {
+    static Stream<Arguments> createFromStringProvider() {
         return Stream.of(
                 Arguments.of("IMPLICIT",  FileTranslationExecutor.IMPLICIT),
                 Arguments.of("implicit",  FileTranslationExecutor.IMPLICIT),
@@ -93,7 +93,7 @@ class FileTranslationExecutorTest {
         }
     }
 
-    private static Stream<Arguments> createImplicitlyTranslatedFilesProvider() {
+    static Stream<Arguments> createImplicitlyTranslatedFilesProvider() {
         List<String> inputFileNames = List.of("input-sentence-short.txt", "input-sentence-long.txt");
         Map<String, String> expectedFileNamesToContents = Map.of(
                 "input-sentence-short-eng.txt", wrapTranslatedText("This is a short sentence"),
@@ -115,18 +115,18 @@ class FileTranslationExecutorTest {
         );
     }
 
-    private static String wrapTranslatedText(String translatedText) {
+    static String wrapTranslatedText(String translatedText) {
         return "TEST " + translatedText + " TEST";
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static void preparePropertiesFile(String fileFormat, String placeholderType) throws IOException, URISyntaxException {
+    static void preparePropertiesFile(String fileFormat, String placeholderType) throws IOException, URISyntaxException {
         URI filePath = Resources.getResource("application.properties").toURI();
         List<String> propertiesFileContent = getPropertiesFileContent(fileFormat, placeholderType);
         Files.write(Paths.get(filePath), propertiesFileContent);
     }
 
-    private static List<String> getPropertiesFileContent(String fileFormat, String placeholderType) {
+    static List<String> getPropertiesFileContent(String fileFormat, String placeholderType) {
         return List.of("i18n.file.format      = " + fileFormat,
                        "i18n.placeholder.type = " + placeholderType,
                        "i18n.language.codes   = eng,pol");
@@ -148,7 +148,7 @@ class FileTranslationExecutorTest {
         assertEquals("File paths cannot be null or empty", exception.getMessage());
     }
 
-    private static Stream<Arguments> translateWithNullOrEmptyPathsProvider() {
+    static Stream<Arguments> translateWithNullOrEmptyPathsProvider() {
         return Stream.of(
                 Arguments.of(FileTranslationExecutor.IMPLICIT,  null),
                 Arguments.of(FileTranslationExecutor.IMPLICIT,  new String[0]),

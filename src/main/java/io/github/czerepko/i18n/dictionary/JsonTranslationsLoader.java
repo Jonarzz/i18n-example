@@ -36,11 +36,11 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
                                                                     .collect(toMap(Map.Entry::getKey,
                                                                                    entry -> entry.getValue().toString()));
             validateDuplicatesInCurrentFile(fileContext, jsonFlattener, translationsFromFile);
-            for (String key : translationsFromFile.keySet()) {
-                if (translations.containsKey(key)) {
-                    throw new DuplicatedTranslationKeyException(fileContext, key);
+            for (Map.Entry<String, String> translation : translationsFromFile.entrySet()) {
+                if (translations.containsKey(translation.getKey())) {
+                    throw new DuplicatedTranslationKeyException(fileContext, translation.getKey());
                 }
-                translations.put(key, translationsFromFile.get(key));
+                translations.put(translation.getKey(), translation.getValue());
             }
         }
         return translations;

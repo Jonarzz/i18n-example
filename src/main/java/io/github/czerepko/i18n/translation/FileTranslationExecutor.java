@@ -37,6 +37,7 @@ import java.util.Map;
  * </ul>
  */
 public enum FileTranslationExecutor {
+
     IMPLICIT(new ImplicitFileResolver()),
     RECURSIVE(new RecursiveFileResolver());
 

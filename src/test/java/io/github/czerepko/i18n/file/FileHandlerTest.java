@@ -43,7 +43,7 @@ class FileHandlerTest {
             assertEquals(expectedOutput, executionResult);
         }
 
-        private Stream<Arguments> executeWithoutInputParamsProvider() {
+        Stream<Arguments> executeWithoutInputParamsProvider() {
             return Stream.of(
                     Arguments.of(FileHandler.READ,   "READ",   "file content"),
                     Arguments.of(FileHandler.CREATE, "CREATE", null),
@@ -62,7 +62,7 @@ class FileHandlerTest {
             verification.accept(operationName, input);
         }
 
-        private Stream<Arguments> executeWithInputParamsProvider() {
+        Stream<Arguments>  executeWithInputParamsProvider() {
             BiConsumer noContentVerification = (filename, input) -> {};
             BiConsumer<String, String> contentVerification = (filename, input) -> {
                 File file = getResourceFile(filename);
@@ -81,7 +81,7 @@ class FileHandlerTest {
             );
         }
 
-        private File getResourceFile(String filename) {
+        File getResourceFile(String filename) {
             return Optional.ofNullable(fileDirResourceUrl)
                            .map(url -> new File(url.getFile() + File.separator + filename))
                            .orElseThrow(AssertionError::new);
@@ -109,7 +109,7 @@ class FileHandlerTest {
                          customException.getMessage());
         }
 
-        private Stream<Arguments> executeWithoutInputHandlerProvider() {
+        Stream<Arguments>  executeWithoutInputHandlerProvider() {
             return Stream.of(
                     Arguments.of(FileHandler.CREATE, "CREATE"),
                     Arguments.of(FileHandler.READ, "READ")

@@ -29,7 +29,7 @@ class PlaceholderReplacerTest {
         });
     }
 
-    private static Stream<Arguments> replacerAndAffixesProvider() {
+    static Stream<Arguments> replacerAndAffixesProvider() {
         return Stream.of(
                 Arguments.of(TAG,      "<Trans>", "</Trans>"),
                 Arguments.of(VARIABLE, "${",      "}")

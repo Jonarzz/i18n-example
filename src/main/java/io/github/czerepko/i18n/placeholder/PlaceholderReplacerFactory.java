@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 public enum PlaceholderReplacerFactory {
+
     TAG(placeholder -> "<Trans>" + placeholder + "</Trans>"),
     VARIABLE(placeholder -> "${" + placeholder + "}");
 
@@ -25,6 +26,8 @@ public enum PlaceholderReplacerFactory {
     }
 
     /**
+     * Returns a factory based on a type name String or throws an exception if no such factory exists.
+     *
      * @param typeName placeholder replacer factory type name for which the factory should be returned
      * @return The replacer factory appropriate for given type name
      * @throws InvalidPlaceholderReplacerTypeException when given type name is not valid; the exception message contains all available type names

@@ -41,11 +41,18 @@ abstract class TranslationsLoaderTest {
         assertThat(translations, allOf(entriesMatch(expectedTranslations)));
     }
 
-    private static Stream<Arguments> correctTranslationsMethodSource() {
+    static Stream<Arguments> correctTranslationsMethodSource() {
         return Stream.of(
                 Arguments.of("eng", EXPECTED_CORRECT_ENG),
                 Arguments.of("pol", EXPECTED_CORRECT_POL)
         );
+    }
+
+    List<Matcher<? super Map<String, String>>> entriesMatch(Map<String, String> expected) {
+        return expected.entrySet()
+                       .stream()
+                       .map(entry -> hasEntry(entry.getKey(), entry.getValue()))
+                       .collect(toList());
     }
 
     @Test
@@ -96,13 +103,6 @@ abstract class TranslationsLoaderTest {
                 "invalid_file_format",
                 String.format("i18n.%s has invalid format", fileExtension)
         )));
-    }
-
-    private List<Matcher<? super Map<String, String>>> entriesMatch(Map<String, String> expected) {
-        return expected.entrySet()
-                       .stream()
-                       .map(entry -> hasEntry(entry.getKey(), entry.getValue()))
-                       .collect(toList());
     }
 
 }

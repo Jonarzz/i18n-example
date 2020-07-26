@@ -4,6 +4,9 @@ import io.github.czerepko.i18n.translation.FileTranslationExecutor;
 
 public class I18nExample {
 
+    private I18nExample() {
+    }
+
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("No arguments provided! Template file paths should be provided as arguments.");

@@ -13,6 +13,10 @@ public class PlaceholderReplacer {
     }
 
     /**
+     * Takes a String with placeholders and replaces them with appropriate values.
+     * Both replacement mapping and placeholder decoration strategy (wrapping keys to match appropriate placeholder style)
+     * are defined at the object creation.
+     *
      * @param withPlaceholders String that contains parts with placeholders in format appropriate for this replacer
      *                         (see: {@link io.github.czerepko.i18n.placeholder.PlaceholderReplacerFactory})
      * @return A new String with all placeholders from the given String replaced with appropriate values based on the placeholder to value map.

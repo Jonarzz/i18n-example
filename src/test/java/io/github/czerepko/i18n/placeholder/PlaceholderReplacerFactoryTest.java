@@ -29,7 +29,7 @@ class PlaceholderReplacerFactoryTest {
         assertThat(provider, is(equalTo(factory)));
     }
 
-    private static Stream<Arguments> factorySource() {
+    static Stream<Arguments> factorySource() {
         return Stream.of(
                 Arguments.of("tag",      PlaceholderReplacerFactory.TAG),
                 Arguments.of("variable", PlaceholderReplacerFactory.VARIABLE)

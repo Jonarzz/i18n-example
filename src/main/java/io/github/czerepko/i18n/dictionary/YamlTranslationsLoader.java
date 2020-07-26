@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Note - not a proper YAML format parser - used only as an example!
+ * Note - not a proper YAML format parser - used only as an example.
  */
 class YamlTranslationsLoader implements I18nTranslationsLoader {
 

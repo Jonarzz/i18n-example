@@ -7,6 +7,7 @@ import java.util.Properties;
 
 @SuppressWarnings("UnstableApiUsage")
 enum TranslationProperties {
+
     FILE_FORMAT("i18n.file.format"),
     LANGUAGE_CODES("i18n.language.codes"),
     PLACEHOLDER_TYPE("i18n.placeholder.type");
