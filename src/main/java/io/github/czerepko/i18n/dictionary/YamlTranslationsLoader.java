@@ -27,7 +27,7 @@ class YamlTranslationsLoader implements I18nTranslationsLoader {
     @Override
     public Map<String, String> loadTranslations(String languageCode) {
         Map<String, String> translations = new HashMap<>();
-        for (TranslationFileContext fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
+        for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
             Deque<String> nodes = new ArrayDeque<>();
             int previousIndent = -1;
             for (String line : fileContext.getLines()) {

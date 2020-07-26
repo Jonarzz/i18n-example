@@ -17,7 +17,7 @@ public class FileHandler<I, O> {
     );
     @SuppressWarnings("UnstableApiUsage")
     public static final FileHandler<Void, List<String>> READ_LINES = new FileHandler<>(
-            FileOperation.READ,
+            FileOperation.READ_LINES,
             file -> Files.readLines(file, Charsets.UTF_8)
     );
     public static final FileHandler<String, Void> WRITE = new FileHandler<>(
@@ -74,12 +74,14 @@ public class FileHandler<I, O> {
     private interface FileHandlingFunction<O> {
 
         O apply(File file) throws IOException;
+
     }
 
     @FunctionalInterface
     private interface FileHandlingConsumerWithInput<I> {
 
         void apply(File file, I input) throws IOException;
+
     }
 
 }

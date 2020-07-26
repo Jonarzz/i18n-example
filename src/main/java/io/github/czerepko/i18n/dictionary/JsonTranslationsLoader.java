@@ -22,7 +22,7 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
     @Override
     public Map<String, String> loadTranslations(String languageCode) {
         Map<String, String> translations = new HashMap<>();
-        for (TranslationFileContext fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
+        for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
             String fileContent = fileContext.getContent();
             JsonFlattener jsonFlattener;
             try {
@@ -36,7 +36,7 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
                                                                     .collect(toMap(Map.Entry::getKey,
                                                                                    entry -> entry.getValue().toString()));
             validateDuplicatesInCurrentFile(fileContext, jsonFlattener, translationsFromFile);
-            for (Map.Entry<String, String> translation : translationsFromFile.entrySet()) {
+            for (var translation : translationsFromFile.entrySet()) {
                 if (translations.containsKey(translation.getKey())) {
                     throw new DuplicatedTranslationKeyException(fileContext, translation.getKey());
                 }

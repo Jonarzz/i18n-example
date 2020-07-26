@@ -23,7 +23,7 @@ public class PlaceholderReplacer {
      */
     public String replace(String withPlaceholders) {
         String replaced = withPlaceholders;
-        for (Map.Entry<String, String> placeholderToValue : placeholdersToValues.entrySet()) {
+        for (var placeholderToValue : placeholdersToValues.entrySet()) {
             String decoratedPlaceholder = placeholderDecoratingStrategy.apply(placeholderToValue.getKey());
             replaced = replaced.replace(decoratedPlaceholder, placeholderToValue.getValue());
         }

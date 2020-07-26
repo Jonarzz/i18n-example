@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import com.google.common.io.Files;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,6 +16,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -45,9 +45,10 @@ class FileHandlerTest {
 
         Stream<Arguments> executeWithoutInputParamsProvider() {
             return Stream.of(
-                    Arguments.of(FileHandler.READ,   "READ",   "file content"),
-                    Arguments.of(FileHandler.CREATE, "CREATE", null),
-                    Arguments.of(FileHandler.WRITE,  "WRITE",  null)
+                    Arguments.of(FileHandler.READ,       "READ",       "file content"),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", List.of("file", "content")),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     null),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      null)
             );
         }
 
@@ -62,7 +63,7 @@ class FileHandlerTest {
             verification.accept(operationName, input);
         }
 
-        Stream<Arguments>  executeWithInputParamsProvider() {
+        Stream<Arguments> executeWithInputParamsProvider() {
             BiConsumer noContentVerification = (filename, input) -> {};
             BiConsumer<String, String> contentVerification = (filename, input) -> {
                 File file = getResourceFile(filename);
@@ -75,9 +76,10 @@ class FileHandlerTest {
                 assertEquals(input, actual);
             };
             return Stream.of(
-                    Arguments.of(FileHandler.READ,   "READ",   null,          noContentVerification),
-                    Arguments.of(FileHandler.CREATE, "CREATE", "create test", contentVerification),
-                    Arguments.of(FileHandler.WRITE,  "WRITE",  "write test",  contentVerification)
+                    Arguments.of(FileHandler.READ,       "READ",       "read test",   noContentVerification),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", "read test",   noContentVerification),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     "create test", contentVerification),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      "write test",  contentVerification)
             );
         }
 
@@ -99,32 +101,35 @@ class FileHandlerTest {
         });
 
         @ParameterizedTest(name = "operation = {1}")
-        @MethodSource("executeWithoutInputHandlerProvider")
+        @MethodSource("executeWithErrorProvider")
         @DisplayName("IOException handling in execute without input test")
         void ioExceptionInExecuteWithoutInputTest(FileHandler<?, ?> fileHandler, String operationName) {
             Exception customException = assertThrows(FileHandlingException.class,
                                                      () -> fileHandler.execute(ioExceptionThrowingFile));
 
-            assertEquals(String.format("An error occurred while performing a %s operation on a file", operationName.toLowerCase()),
+            assertEquals(String.format("An error occurred while performing %s operation on a file", operationName),
                          customException.getMessage());
         }
 
-        Stream<Arguments>  executeWithoutInputHandlerProvider() {
-            return Stream.of(
-                    Arguments.of(FileHandler.CREATE, "CREATE"),
-                    Arguments.of(FileHandler.READ, "READ")
-            );
-        }
-
-        @Test
+        @ParameterizedTest(name = "operation = {1}")
+        @MethodSource("executeWithErrorProvider")
         @DisplayName("IOException handling in execute with input test")
-        void ioExceptionInExecuteWithInputTest() {
+        void ioExceptionInExecuteWithInputTest(FileHandler<?, ?> fileHandler, String operationName) {
             Exception customException = assertThrows(FileHandlingException.class,
-                                                     () -> FileHandler.WRITE.execute(ioExceptionThrowingFile, ""));
+                                                     () -> fileHandler.execute(ioExceptionThrowingFile, null));
 
-            assertEquals("An error occurred while performing a write operation on a file",
+            assertEquals(String.format("An error occurred while performing %s operation on a file", operationName),
                          customException.getMessage());
         }
+
+        Stream<Arguments> executeWithErrorProvider() {
+           return Stream.of(
+                   Arguments.of(FileHandler.CREATE,     "create"),
+                   Arguments.of(FileHandler.READ,       "read"),
+                   Arguments.of(FileHandler.READ_LINES, "read lines"),
+                   Arguments.of(FileHandler.WRITE,      "write")
+           );
+       }
 
     }
 

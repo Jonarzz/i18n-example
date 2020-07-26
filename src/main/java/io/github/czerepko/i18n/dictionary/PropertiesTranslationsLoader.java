@@ -19,7 +19,7 @@ class PropertiesTranslationsLoader implements I18nTranslationsLoader {
     @Override
     public Map<String, String> loadTranslations(String languageCode) {
         Map<String, String> translations = new HashMap<>();
-        for (TranslationFileContext fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
+        for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
             for (String line : fileContext.getLines()) {
                 List<String> keyValueList = Splitter.on(KEY_VALUE_SEPARATOR).trimResults().splitToList(line);
                 if (keyValueList.size() != 2) {
