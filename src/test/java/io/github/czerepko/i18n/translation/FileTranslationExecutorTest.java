@@ -7,7 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-import com.google.common.io.Resources;
+import io.github.czerepko.i18n.common.I18nProperties;
+import io.github.czerepko.i18n.test.PropertiesOverWriter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -62,8 +62,13 @@ class FileTranslationExecutorTest {
     @DisplayName("Create translated files for implicitly given input file paths")
     void createImplicitlyTranslatedFiles(String propertiesFileFormat, String placeholderType, List<String> inputFileNames,
                                          Map<String, String> expectedFileNamesToContents) throws IOException, URISyntaxException {
-        preparePropertiesFile(propertiesFileFormat, placeholderType);
-        FileTranslationExecutor.reloadProperties();
+        PropertiesOverWriter.prepare()
+                            .withFileFormat(propertiesFileFormat)
+                            .withPlaceholderType(placeholderType)
+                            .withLanguageCodes("eng", "pol")
+                            .create()
+                            .overwrite();
+        I18nProperties.reload();
 
         String[] inputFilePaths = inputFileNames.stream()
                                                 .map(fileName -> Joiner.on(File.separator)
@@ -117,19 +122,6 @@ class FileTranslationExecutorTest {
 
     static String wrapTranslatedText(String translatedText) {
         return "TEST " + translatedText + " TEST";
-    }
-
-    @SuppressWarnings("UnstableApiUsage")
-    static void preparePropertiesFile(String fileFormat, String placeholderType) throws IOException, URISyntaxException {
-        URI filePath = Resources.getResource("application.properties").toURI();
-        List<String> propertiesFileContent = getPropertiesFileContent(fileFormat, placeholderType);
-        Files.write(Paths.get(filePath), propertiesFileContent);
-    }
-
-    static List<String> getPropertiesFileContent(String fileFormat, String placeholderType) {
-        return List.of("i18n.file.format      = " + fileFormat,
-                       "i18n.placeholder.type = " + placeholderType,
-                       "i18n.language.codes   = eng,pol");
     }
 
     @Test

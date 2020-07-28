@@ -2,6 +2,7 @@ package io.github.czerepko.i18n.translation;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import io.github.czerepko.i18n.common.I18nProperties;
 import io.github.czerepko.i18n.dictionary.I18nTranslationsLoader;
 import io.github.czerepko.i18n.dictionary.TranslationsLoaderProvider;
 import io.github.czerepko.i18n.file.FileHandler;
@@ -16,8 +17,8 @@ class FileTranslator {
     private PlaceholderReplacerFactory placeholderReplacerFactory;
 
     FileTranslator() {
-        i18nTranslationsLoader = TranslationsLoaderProvider.fromString(TranslationProperties.FILE_FORMAT.getValue()).get();
-        placeholderReplacerFactory = PlaceholderReplacerFactory.fromString(TranslationProperties.PLACEHOLDER_TYPE.getValue());
+        i18nTranslationsLoader = TranslationsLoaderProvider.fromString(I18nProperties.FILE_FORMAT.getValue()).get();
+        placeholderReplacerFactory = PlaceholderReplacerFactory.fromString(I18nProperties.PLACEHOLDER_TYPE.getValue());
     }
 
     File translate(File templateFile, String languageCode) {

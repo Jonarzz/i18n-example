@@ -1,11 +1,12 @@
 package io.github.czerepko.i18n.file;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.io.Files;
+import io.github.czerepko.i18n.common.I18nProperties;
+import io.github.czerepko.i18n.test.PropertiesOverWriter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
@@ -15,10 +16,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 @DisplayName("File handler tests")
@@ -32,11 +35,13 @@ class FileHandlerTest {
 
         private URL fileDirResourceUrl = getClass().getClassLoader().getResource("file");
 
-        @ParameterizedTest(name = "operation = {1}")
+        @ParameterizedTest(name = "operation = {1}, charset = {2}")
         @MethodSource("executeWithoutInputParamsProvider")
         @DisplayName("Execute without input")
-        <O> void executeWithoutInputTest(FileHandler<?, O> fileHandler, String operationName, O expectedOutput) {
-            File file = getResourceFile(operationName);
+        <O> void executeWithoutInputTest(FileHandler<?, O> fileHandler, String operationName, Charset charset, O expectedOutput)
+                throws IOException, URISyntaxException {
+            reloadProperties(charset);
+            File file = getResourceFile(operationName, charset);
 
             O executionResult = fileHandler.execute(file);
 
@@ -45,47 +50,65 @@ class FileHandlerTest {
 
         Stream<Arguments> executeWithoutInputParamsProvider() {
             return Stream.of(
-                    Arguments.of(FileHandler.READ,       "READ",       "file content"),
-                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", List.of("file", "content")),
-                    Arguments.of(FileHandler.CREATE,     "CREATE",     null),
-                    Arguments.of(FileHandler.WRITE,      "WRITE",      null)
+                    Arguments.of(FileHandler.READ,       "READ",       StandardCharsets.UTF_8, "file content"),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", StandardCharsets.UTF_8, List.of("file", "content")),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     StandardCharsets.UTF_8, null),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      StandardCharsets.UTF_8, null),
+                    Arguments.of(FileHandler.READ,       "READ",       StandardCharsets.UTF_16, "file content"),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", StandardCharsets.UTF_16, List.of("file", "content")),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     StandardCharsets.UTF_16, null),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      StandardCharsets.UTF_16, null)
             );
         }
 
-        @ParameterizedTest(name = "operation = {1}")
+        @ParameterizedTest(name = "operation = {1}, charset = {3}")
         @MethodSource("executeWithInputParamsProvider")
         @DisplayName("Execute with input")
-        <I> void executeWithInputTest(FileHandler<I, ?> fileHandler, String operationName, I input, BiConsumer<String, I> verification) {
-            File file = getResourceFile(operationName);
+        void executeWithInputTest(FileHandler<String, ?> fileHandler, String operationName, String input, Charset charset,
+                                      TriConsumer<Charset, String, String> verification) throws IOException, URISyntaxException {
+            reloadProperties(charset);
+            File file = getResourceFile(operationName, charset);
 
             fileHandler.execute(file, input);
 
-            verification.accept(operationName, input);
+            verification.accept(charset, operationName, input);
         }
 
         Stream<Arguments> executeWithInputParamsProvider() {
-            BiConsumer noContentVerification = (filename, input) -> {};
-            BiConsumer<String, String> contentVerification = (filename, input) -> {
-                File file = getResourceFile(filename);
+            TriConsumer<Charset, String, String> noContentVerification = (charset, filename, input) -> {};
+            TriConsumer<Charset, String, String> contentVerification = (charset, filename, input) -> {
+                File file = getResourceFile(filename, charset);
                 String actual;
                 try {
-                    actual = Files.asCharSource(file, UTF_8).readFirstLine();
+                    actual = Files.asCharSource(file, charset).readFirstLine();
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }
                 assertEquals(input, actual);
             };
             return Stream.of(
-                    Arguments.of(FileHandler.READ,       "READ",       "read test",   noContentVerification),
-                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", "read test",   noContentVerification),
-                    Arguments.of(FileHandler.CREATE,     "CREATE",     "create test", contentVerification),
-                    Arguments.of(FileHandler.WRITE,      "WRITE",      "write test",  contentVerification)
+                    Arguments.of(FileHandler.READ,       "READ",       "read test ąść",   StandardCharsets.UTF_8, noContentVerification),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", "read test ąść",   StandardCharsets.UTF_8, noContentVerification),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     "create test ąść", StandardCharsets.UTF_8, contentVerification),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      "write test ąść",  StandardCharsets.UTF_8, contentVerification),
+                    Arguments.of(FileHandler.READ,       "READ",       "read test ąść",   StandardCharsets.UTF_16, noContentVerification),
+                    Arguments.of(FileHandler.READ_LINES, "READ_LINES", "read test ąść",   StandardCharsets.UTF_16, noContentVerification),
+                    Arguments.of(FileHandler.CREATE,     "CREATE",     "create test ąść", StandardCharsets.UTF_16, contentVerification),
+                    Arguments.of(FileHandler.WRITE,      "WRITE",      "write test ąść",  StandardCharsets.UTF_16, contentVerification)
             );
         }
 
-        File getResourceFile(String filename) {
+        void reloadProperties(Charset charset) throws IOException, URISyntaxException {
+            PropertiesOverWriter.prepare()
+                                .withFileCharset(charset)
+                                .create()
+                                .overwrite();
+            I18nProperties.reload();
+        }
+
+        File getResourceFile(String filename, Charset charset) {
             return Optional.ofNullable(fileDirResourceUrl)
-                           .map(url -> new File(url.getFile() + File.separator + filename))
+                           .map(url -> new File(url.getFile() + File.separator + filename + "_" + charset))
                            .orElseThrow(AssertionError::new);
         }
 

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import com.google.common.base.Splitter;
+import io.github.czerepko.i18n.common.I18nProperties;
 
 import java.io.File;
 import java.util.Arrays;
@@ -44,9 +45,6 @@ public enum FileTranslationExecutor {
     private static final Map<String, FileTranslationExecutor> TYPE_TO_EXECUTOR = Arrays.stream(values())
                                                                                        .collect(toMap(value -> value.toString().toLowerCase(),
                                                                                                       identity()));
-    private static final List<String> LANGUAGE_CODES = Splitter.on(",")
-                                                               .trimResults()
-                                                               .splitToList(TranslationProperties.LANGUAGE_CODES.getValue());
 
     private TemplateFileResolver templateFileResolver;
 
@@ -60,10 +58,6 @@ public enum FileTranslationExecutor {
             throw new InvalidFileTranslationExecutorException(type, TYPE_TO_EXECUTOR.keySet());
         }
         return TYPE_TO_EXECUTOR.get(lowerCaseType);
-    }
-
-    public static void reloadProperties() {
-        TranslationProperties.reload();
     }
 
     /**
@@ -85,9 +79,12 @@ public enum FileTranslationExecutor {
         }
         return templateFileResolver.resolve(filePaths)
                                    .stream()
-                                   .flatMap(templateFile -> LANGUAGE_CODES
-                                           .stream()
-                                           .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
+                                   .flatMap(templateFile ->
+                                                    Splitter.on(",")
+                                                            .trimResults()
+                                                            .splitToList(I18nProperties.LANGUAGE_CODES.getValue())
+                                                            .stream()
+                                                            .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
                                    .map(File::getPath)
                                    .collect(toList());
     }
