@@ -2,14 +2,12 @@ package io.github.czerepko.i18n.dictionary;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.io.Resources;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Optional;
 
-@SuppressWarnings("UnstableApiUsage")
 class I18nResourcesFinder {
 
     private static final String I18N_PATH = "i18n/";
@@ -23,7 +21,8 @@ class I18nResourcesFinder {
     Iterable<TranslationFileContext> findI18nResources(String languageCode) {
         URL directoryUrl;
         try {
-            directoryUrl = Resources.getResource(I18N_PATH + languageCode);
+            directoryUrl = Optional.ofNullable(getClass().getClassLoader().getResource(I18N_PATH + languageCode))
+                                   .orElseThrow(() -> new MissingTranslationResourcesException(languageCode));
         } catch (IllegalArgumentException e) {
             throw new MissingTranslationResourcesException(languageCode);
         }

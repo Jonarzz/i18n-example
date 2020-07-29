@@ -2,7 +2,6 @@ package io.github.czerepko.i18n.dictionary;
 
 import static java.lang.System.lineSeparator;
 
-import com.google.common.base.Joiner;
 import io.github.czerepko.i18n.file.FileHandler;
 
 import java.io.File;
@@ -30,7 +29,7 @@ class TranslationFileContext {
         if (content != null) {
             return content;
         }
-        return content = Joiner.on(lineSeparator()).join(getLines());
+        return content = String.join(lineSeparator(), getLines());
     }
 
     String getPath() {

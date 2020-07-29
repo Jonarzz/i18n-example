@@ -22,7 +22,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -39,7 +38,7 @@ abstract class TranslationsLoaderTest {
     }
 
     @BeforeEach
-    void prepareProperties() throws IOException, URISyntaxException {
+    void prepareProperties() throws IOException {
         PropertiesOverWriter.prepare()
                             .withFileFormat(fileExtension)
                             .create()

@@ -4,7 +4,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import com.google.common.base.Splitter;
 import io.github.czerepko.i18n.common.I18nProperties;
 
 import java.io.File;
@@ -80,11 +79,10 @@ public enum FileTranslationExecutor {
         return templateFileResolver.resolve(filePaths)
                                    .stream()
                                    .flatMap(templateFile ->
-                                                    Splitter.on(",")
-                                                            .trimResults()
-                                                            .splitToList(I18nProperties.LANGUAGE_CODES.getValue())
-                                                            .stream()
-                                                            .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
+                                                    Arrays.stream(I18nProperties.LANGUAGE_CODES.getValue()
+                                                                                               .split(","))
+                                                          .map(String::strip)
+                                                          .map(languageCode -> new FileTranslator().translate(templateFile, languageCode)))
                                    .map(File::getPath)
                                    .collect(toList());
     }

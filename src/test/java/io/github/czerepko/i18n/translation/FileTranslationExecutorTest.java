@@ -4,9 +4,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import io.github.czerepko.i18n.common.I18nProperties;
 import io.github.czerepko.i18n.test.PropertiesOverWriter;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +14,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +58,7 @@ class FileTranslationExecutorTest {
     @MethodSource("createImplicitlyTranslatedFilesProvider")
     @DisplayName("Create translated files for implicitly given input file paths")
     void createImplicitlyTranslatedFiles(String propertiesFileFormat, String placeholderType, List<String> inputFileNames,
-                                         Map<String, String> expectedFileNamesToContents) throws IOException, URISyntaxException {
+                                         Map<String, String> expectedFileNamesToContents) throws IOException {
         PropertiesOverWriter.prepare()
                             .withFileFormat(propertiesFileFormat)
                             .withPlaceholderType(placeholderType)
@@ -71,8 +68,8 @@ class FileTranslationExecutorTest {
         I18nProperties.reload();
 
         String[] inputFilePaths = inputFileNames.stream()
-                                                .map(fileName -> Joiner.on(File.separator)
-                                                                       .join(fileDirResourceUrl.getPath(), placeholderType, fileName))
+                                                .map(fileName -> String.join(File.separator,
+                                                                             fileDirResourceUrl.getPath(), placeholderType, fileName))
                                                 .toArray(String[]::new);
 
         List<String> translatedFilePaths = FileTranslationExecutor.IMPLICIT.createTranslatedFiles(inputFilePaths);
@@ -82,8 +79,9 @@ class FileTranslationExecutorTest {
 
         Map<String, String> actualFileNamesToContents =
                 translatedFilePaths.stream()
-                                   .collect(toMap(path -> Iterables.getLast(Splitter.on(File.separator)
-                                                                                    .split(path)),
+                                   .collect(toMap(path -> Path.of(path)
+                                                              .getFileName()
+                                                              .toString(),
                                                   path -> {
                                                       try {
                                                           return Files.readString(Paths.get(path));

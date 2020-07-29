@@ -1,7 +1,5 @@
 package io.github.czerepko.i18n.translation;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import io.github.czerepko.i18n.common.I18nProperties;
 import io.github.czerepko.i18n.dictionary.I18nTranslationsLoader;
 import io.github.czerepko.i18n.dictionary.TranslationsLoaderProvider;
@@ -9,7 +7,8 @@ import io.github.czerepko.i18n.file.FileHandler;
 import io.github.czerepko.i18n.placeholder.PlaceholderReplacerFactory;
 
 import java.io.File;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.Optional;
 
 class FileTranslator {
 
@@ -32,15 +31,12 @@ class FileTranslator {
     }
 
     private File getOutputFile(String languageCode, String filePath) {
-        List<String> filePathParts = Splitter.on(File.separator).splitToList(filePath);
-        int lastElementIndex = filePathParts.size() - 1;
-
-        String directoryPath = Joiner.on(File.separator).join(filePathParts.subList(0, lastElementIndex));
-
-        String inputFileName = filePathParts.get(lastElementIndex);
-        String outputFileName = inputFileName.replaceFirst("^(.+)\\.(.+)$", "$1-" + languageCode + ".$2");
-
-        return new File(directoryPath + File.separator + outputFileName);
+        Path path = Path.of(filePath);
+        String outputFileName = Optional.ofNullable(path.getFileName())
+                                        .map(Path::toString)
+                                        .map(fileName -> fileName.replaceFirst("^(.+)\\.(.+)$", "$1-" + languageCode + ".$2"))
+                                        .orElseThrow(() -> new IllegalArgumentException("File path " + filePath + " is invalid - no file name present"));
+        return new File(path.getParent() + File.separator + outputFileName);
     }
 
 }

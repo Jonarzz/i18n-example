@@ -4,5 +4,5 @@ test:
         bird:  'ptak'
         table: 'stół'
     sentence:
-      long:  'To jest dosyć długie zdanie, które jest wykorzystywane w teście'
-      short: 'To jest krótkie zdanie'
+      long:  "To jest dosyć długie zdanie, które jest wykorzystywane w teście"
+      short: "To jest krótkie zdanie"

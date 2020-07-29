@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.io.Files;
 import io.github.czerepko.i18n.common.I18nProperties;
 import io.github.czerepko.i18n.test.PropertiesOverWriter;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +15,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -39,7 +38,7 @@ class FileHandlerTest {
         @MethodSource("executeWithoutInputParamsProvider")
         @DisplayName("Execute without input")
         <O> void executeWithoutInputTest(FileHandler<?, O> fileHandler, String operationName, Charset charset, O expectedOutput)
-                throws IOException, URISyntaxException {
+                throws IOException {
             reloadProperties(charset);
             File file = getResourceFile(operationName, charset);
 
@@ -65,7 +64,7 @@ class FileHandlerTest {
         @MethodSource("executeWithInputParamsProvider")
         @DisplayName("Execute with input")
         void executeWithInputTest(FileHandler<String, ?> fileHandler, String operationName, String input, Charset charset,
-                                      TriConsumer<Charset, String, String> verification) throws IOException, URISyntaxException {
+                                  TriConsumer<Charset, String, String> verification) throws IOException {
             reloadProperties(charset);
             File file = getResourceFile(operationName, charset);
 
@@ -80,7 +79,7 @@ class FileHandlerTest {
                 File file = getResourceFile(filename, charset);
                 String actual;
                 try {
-                    actual = Files.asCharSource(file, charset).readFirstLine();
+                    actual = Files.readString(file.toPath(), charset);
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }
@@ -98,7 +97,7 @@ class FileHandlerTest {
             );
         }
 
-        void reloadProperties(Charset charset) throws IOException, URISyntaxException {
+        void reloadProperties(Charset charset) throws IOException {
             PropertiesOverWriter.prepare()
                                 .withFileCharset(charset)
                                 .create()

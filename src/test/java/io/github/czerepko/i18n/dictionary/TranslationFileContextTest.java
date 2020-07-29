@@ -7,20 +7,23 @@ import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
-import com.google.common.io.Resources;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
-@SuppressWarnings("UnstableApiUsage")
 @DisplayName("Translation file context tests")
 class TranslationFileContextTest {
 
-    private static final String LANGUAGE_CODE = "eng";
-    private static final String FILE_NAME = "i18n.properties";
-    private static final File FILE = new File(Resources.getResource("i18n/" + LANGUAGE_CODE + "/" + FILE_NAME).getFile());
+    private static final String FILE_PATH = "i18n/eng/i18n.properties";
+    private static final File FILE = Optional.ofNullable(TranslationFileContextTest.class.getClassLoader()
+                                                                                         .getResource(FILE_PATH))
+                                             .map(URL::getFile)
+                                             .map(File::new)
+                                             .orElseThrow(() -> new IllegalStateException("Resource " + FILE_PATH + " not accessible"));
 
     @Test
     @DisplayName("Get lines from file")

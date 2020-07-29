@@ -1,11 +1,10 @@
 package io.github.czerepko.i18n.common;
 
-import com.google.common.io.Resources;
-
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 
-@SuppressWarnings("UnstableApiUsage")
 public enum I18nProperties {
 
     FILE_FORMAT("i18n.file.format"),
@@ -28,8 +27,9 @@ public enum I18nProperties {
 
     public static void reload() {
         try {
-            PROPERTIES.load(Resources.getResource(PROPERTIES_FILENAME)
-                                     .openStream());
+            PROPERTIES.load(Optional.ofNullable(I18nProperties.class.getClassLoader().getResource(PROPERTIES_FILENAME))
+                                    .orElseThrow(() -> new FileNotFoundException("Could not find properties resource file " + PROPERTIES_FILENAME))
+                                    .openStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,8 @@
 package io.github.czerepko.i18n.dictionary;
 
-import com.google.common.base.Splitter;
+import static java.util.stream.Collectors.toList;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,9 @@ class PropertiesTranslationsLoader implements I18nTranslationsLoader {
         Map<String, String> translations = new HashMap<>();
         for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
             for (String line : fileContext.getLines()) {
-                List<String> keyValueList = Splitter.on(KEY_VALUE_SEPARATOR).trimResults().splitToList(line);
+                List<String> keyValueList = Arrays.stream(line.split(KEY_VALUE_SEPARATOR))
+                                                  .map(String::strip)
+                                                  .collect(toList());
                 if (keyValueList.size() != 2) {
                     throw new InvalidTranslationsFileFormatException(fileContext);
                 }

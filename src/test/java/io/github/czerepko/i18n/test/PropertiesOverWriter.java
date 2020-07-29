@@ -2,8 +2,6 @@ package io.github.czerepko.i18n.test;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.base.Joiner;
-import com.google.common.io.Resources;
 import io.github.czerepko.i18n.common.I18nProperties;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,6 +11,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class PropertiesOverWriter {
@@ -23,12 +22,12 @@ public class PropertiesOverWriter {
         propertiesFileContent = Stream.of(Pair.of(I18nProperties.FILE_FORMAT,      builder.getFileFormat()),
                                           Pair.of(I18nProperties.FILE_ENCODING,    builder.getFileCharset()),
                                           Pair.of(I18nProperties.PLACEHOLDER_TYPE, builder.getPlaceholderType()),
-                                          Pair.of(I18nProperties.LANGUAGE_CODES,   Joiner.on(',')
-                                                                                         .join(builder.getLanguageCodes())))
-                                      .map(propertyAndValue -> Joiner.on('=')
-                                                                     .skipNulls()
-                                                                     .join(propertyAndValue.getLeft().getPropertyPlaceholder(),
-                                                                           propertyAndValue.getRight()))
+                                          Pair.of(I18nProperties.LANGUAGE_CODES,   String.join(",", builder.getLanguageCodes())))
+                                      .map(propertyAndValue -> String.join("=",
+                                                                           propertyAndValue.getLeft()
+                                                                                           .getPropertyPlaceholder(),
+                                                                           Optional.ofNullable(propertyAndValue.getRight())
+                                                                                   .orElse("")))
                                       .map(String::toLowerCase)
                                       .collect(toList());
     }
@@ -37,9 +36,15 @@ public class PropertiesOverWriter {
         return new PropertiesOverWriterBuilder();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    public void overwrite() throws IOException, URISyntaxException {
-        URI filePath = Resources.getResource("application.properties").toURI();
+    public void overwrite() throws IOException {
+        URI filePath;
+        try {
+            filePath = Optional.ofNullable(getClass().getClassLoader().getResource("application.properties"))
+                               .orElseThrow(() -> new IllegalStateException("Properties resource file not accessible"))
+                               .toURI();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
         Files.write(Paths.get(filePath), propertiesFileContent);
     }
 
