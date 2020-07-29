@@ -11,13 +11,18 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.github.czerepko.i18n.common.I18nProperties;
+import io.github.czerepko.i18n.test.PropertiesOverWriter;
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -31,6 +36,15 @@ abstract class TranslationsLoaderTest {
     TranslationsLoaderTest(I18nTranslationsLoader loader, String fileExtension) {
         this.loader = loader;
         this.fileExtension = fileExtension;
+    }
+
+    @BeforeEach
+    void prepareProperties() throws IOException, URISyntaxException {
+        PropertiesOverWriter.prepare()
+                            .withFileFormat(fileExtension)
+                            .create()
+                            .overwrite();
+        I18nProperties.reload();
     }
 
     @ParameterizedTest(name = "language = {0}")
