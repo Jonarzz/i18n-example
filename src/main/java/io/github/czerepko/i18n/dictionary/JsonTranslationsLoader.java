@@ -2,14 +2,13 @@ package io.github.czerepko.i18n.dictionary;
 
 import static java.util.stream.Collectors.toMap;
 
-import com.eclipsesource.json.ParseException;
-import com.github.wnameless.json.flattener.JsonFlattener;
-import com.github.wnameless.json.flattener.KeyTransformer;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+
+import com.eclipsesource.json.ParseException;
+import com.github.wnameless.json.flattener.JsonFlattener;
+import com.github.wnameless.json.flattener.KeyTransformer;
 
 class JsonTranslationsLoader implements I18nTranslationsLoader {
 
@@ -23,47 +22,45 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
     public Map<String, String> loadTranslations(String languageCode) {
         Map<String, String> translations = new HashMap<>();
         for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
-            String fileContent = fileContext.getContent();
-            JsonFlattener jsonFlattener;
-            try {
-                jsonFlattener = new JsonFlattener(fileContent);
-            } catch (ParseException e) {
-                throw new InvalidTranslationsFileFormatException(fileContext);
-            }
-            Map<String, String> translationsFromFile = jsonFlattener.flattenAsMap()
-                                                                    .entrySet()
-                                                                    .stream()
-                                                                    .collect(toMap(Map.Entry::getKey,
-                                                                                   entry -> entry.getValue().toString()));
-            validateDuplicatesInCurrentFile(fileContext, jsonFlattener, translationsFromFile);
-            for (var translation : translationsFromFile.entrySet()) {
-                if (translations.containsKey(translation.getKey())) {
-                    throw new DuplicatedTranslationKeyException(fileContext, translation.getKey());
-                }
-                translations.put(translation.getKey(), translation.getValue());
-            }
+            getTranslationsFromFile(fileContext)
+                    .forEach((key, value) -> {
+                        if (translations.containsKey(key)) {
+                            throw new DuplicatedTranslationKeyException(fileContext, key);
+                        }
+                        translations.put(key, value);
+                    });
         }
         return translations;
     }
 
-    private void validateDuplicatesInCurrentFile(TranslationFileContext fileContext, JsonFlattener jsonFlattener,
-                                                 Map<String, String> translationsFromFile) {
-        IncrementalKeyTransformer keyTransformer = new IncrementalKeyTransformer();
-        Set<String> numberedKeys = jsonFlattener.withKeyTransformer(keyTransformer)
-                                                .flattenAsMap()
-                                                .keySet();
-        if (numberedKeys.size() == translationsFromFile.keySet().size()) {
-            return;
-        }
-        Set<String> alreadyOccurredKeys = new HashSet<>();
-        for (String numberedKey : numberedKeys) {
+    private static Map<String, String> getTranslationsFromFile(TranslationFileContext fileContext) {
+        var keyTransformer = new IncrementalKeyTransformer();
+        var translationsWithNumberedKeys =
+                createJsonFlattener(fileContext)
+                        .withKeyTransformer(keyTransformer)
+                        .flattenAsMap()
+                        .entrySet()
+                        .stream()
+                        .collect(toMap(Map.Entry::getKey,
+                                       entry -> entry.getValue().toString()));
+        var alreadyOccurredKeys = new HashSet<>();
+        Map<String, String> translations = new HashMap<>();
+        translationsWithNumberedKeys.forEach((numberedKey, value) -> {
             String key = keyTransformer.transformBack(numberedKey);
-            if (translationsFromFile.containsKey(key)) {
-                if (alreadyOccurredKeys.contains(key)) {
-                    throw new DuplicatedTranslationKeyException(fileContext, key);
-                }
-                alreadyOccurredKeys.add(key);
+            if (alreadyOccurredKeys.contains(key)) {
+                throw new DuplicatedTranslationKeyException(fileContext, key);
             }
+            alreadyOccurredKeys.add(key);
+            translations.put(key, value);
+        });
+        return translations;
+    }
+
+    private static JsonFlattener createJsonFlattener(TranslationFileContext fileContext) {
+        try {
+            return new JsonFlattener(fileContext.getContent());
+        } catch (ParseException e) {
+            throw new InvalidTranslationsFileFormatException(fileContext);
         }
     }
 

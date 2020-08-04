@@ -2,14 +2,14 @@ package io.github.czerepko.i18n.dictionary;
 
 import static java.lang.System.lineSeparator;
 
-import io.github.czerepko.i18n.file.FileHandler;
-
 import java.io.File;
 import java.util.List;
 
+import io.github.czerepko.i18n.file.FileHandler;
+
 class TranslationFileContext {
 
-    private File translationFile;
+    private final File translationFile;
 
     private List<String> lines;
     private String content;

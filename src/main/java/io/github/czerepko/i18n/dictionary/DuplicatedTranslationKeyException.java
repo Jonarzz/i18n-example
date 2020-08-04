@@ -6,7 +6,6 @@ class DuplicatedTranslationKeyException extends RuntimeException {
 
     DuplicatedTranslationKeyException(TranslationFileContext fileContext, String duplicatedKey) {
         super(String.format(ERROR_MESSAGE_TEMPLATE, fileContext.getPath(), duplicatedKey));
-
     }
 
 }

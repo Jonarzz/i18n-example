@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 class I18nResourcesFinder {
@@ -18,7 +19,7 @@ class I18nResourcesFinder {
         filenameFilter = (directory, filename) -> filename.matches(".+\\." + extension + "$");
     }
 
-    Iterable<TranslationFileContext> findI18nResources(String languageCode) {
+    Collection<TranslationFileContext> findI18nResources(String languageCode) {
         URL directoryUrl;
         try {
             directoryUrl = Optional.ofNullable(getClass().getClassLoader().getResource(I18N_PATH + languageCode))
