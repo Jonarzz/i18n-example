@@ -20,20 +20,16 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
 
     @Override
     public Map<String, String> loadTranslations(String languageCode) {
-        Map<String, String> translations = new HashMap<>();
+        var translations = new HashMap<String, String>();
         for (var fileContext : i18nResourcesFinder.findI18nResources(languageCode)) {
-            getTranslationsFromFile(fileContext)
-                    .forEach((key, value) -> {
-                        if (translations.containsKey(key)) {
-                            throw new DuplicatedTranslationKeyException(fileContext, key);
-                        }
-                        translations.put(key, value);
-                    });
+            translations.putAll(getTranslationsFromFile(fileContext, translations));
         }
         return translations;
     }
 
-    private static Map<String, String> getTranslationsFromFile(TranslationFileContext fileContext) {
+    private static Map<String, String> getTranslationsFromFile(TranslationFileContext fileContext,
+                                                               Map<String, String> loadedTranslations) {
+        var alreadyOccurredKeys = new HashSet<>(loadedTranslations.keySet());
         var keyTransformer = new IncrementalKeyTransformer();
         var translationsWithNumberedKeys =
                 createJsonFlattener(fileContext)
@@ -43,9 +39,9 @@ class JsonTranslationsLoader implements I18nTranslationsLoader {
                         .stream()
                         .collect(toMap(Map.Entry::getKey,
                                        entry -> entry.getValue().toString()));
-        var alreadyOccurredKeys = new HashSet<>();
-        Map<String, String> translations = new HashMap<>();
+        var translations = new HashMap<String, String>();
         translationsWithNumberedKeys.forEach((numberedKey, value) -> {
+            // keys are numbered only to make it possible to catch duplicates and throw an error with appropriate information
             String key = keyTransformer.transformBack(numberedKey);
             if (alreadyOccurredKeys.contains(key)) {
                 throw new DuplicatedTranslationKeyException(fileContext, key);
